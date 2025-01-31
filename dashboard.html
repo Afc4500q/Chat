@@ -25,6 +25,8 @@
             <div class="stat-box">المعلقة <br><span id="pendingOrders">0</span></div>
             <div class="stat-box">المرفوضة <br><span id="rejectedOrders">0</span></div>
             <div class="stat-box">الناجحة <br><span id="successfulOrders">0</span></div>
+             <div class="stat-box">التقييم <br><span id="myParagraph">0</span></div>
+            
         </div>
 
         <div class="products">
@@ -48,6 +50,7 @@
             document.getElementById("pendingOrders").textContent = user.pendingOrders;
             document.getElementById("rejectedOrders").textContent = user.rejectedOrders;
             document.getElementById("successfulOrders").textContent = user.successfulOrders;
+            document.getElementById("myParagraph").innerHTML = `${user.totalOrders}/${user.successfulOrders}`;
 
             fetch("https://679353885eae7e5c4d8e46e3.mockapi.io/Yo")
                 .then(response => response.json())
