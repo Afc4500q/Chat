@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background-color: #f5f5f5; }
+        .container { background-color: #003b46; color: white; padding: 20px; border-radius: 10px; width: 300px; margin: auto; }
+        .name { background-color: #ff9800; padding: 10px; border-radius: 10px; font-size: 18px; font-weight: bold; }
+        .stats { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 15px; }
+        .stat-box { background-color: #ff9800; padding: 10px; border-radius: 10px; width: 80px; font-size: 14px; }
+        .details { background-color: #003b46; padding: 15px; border-radius: 10px; margin-top: 15px; text-align: right; }
+        .details p { margin: 5px 0; color: white; }
+        .logout-btn { background-color: red; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="name" id="userName">جارِ التحميل...</div>
+        <div class="stats">
+            <div class="stat-box">الرصيد<br><span id="balance">--</span></div>
+            <div class="stat-box">الطلبات<br><span id="totalOrders">--</span></div>
+            <div class="stat-box">المعلقة<br><span id="pendingOrders">--</span></div>
+            <div class="stat-box">المرفوضة<br><span id="rejectedOrders">--</span></div>
+            <div class="stat-box">الناجحة<br><span id="successfulOrders">--</span></div>
+        </div>
+        <div class="details">
+            <p>اسم المنتج: <span id="productName">---</span></p>
+            <p>معرف المنتج: <span id="productId">---</span></p>
+            <p>سعر المنتج: <span id="productPrice">---</span></p>
+            <p>الولاية: <span id="state">---</span></p>
+            <p>المدينة: <span id="city">---</span></p>
+            <p>المنطقة: <span id="region">---</span></p>
+            <p>الحالة: <span id="status">---</span></p>
+        </div>
+        <button class="logout-btn" onclick="logout()">تسجيل الخروج</button>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const user = JSON.parse(localStorage.getItem("loggedInUser"));
+            if (!user) {
+                window.location.href = "index.html";
+            } else {
+                document.getElementById("userName").innerText = user.name;
+                document.getElementById("balance").innerText = user.balance;
+                document.getElementById("totalOrders").innerText = user.totalOrders;
+                document.getElementById("pendingOrders").innerText = user.pendingOrders;
+                document.getElementById("rejectedOrders").innerText = user.rejectedOrders;
+                document.getElementById("successfulOrders").innerText = user.successfulOrders;
+                
+                // تأكد من وجود هذه البيانات في API قبل عرضها
+                document.getElementById("productName").innerText = products.name || "---";
+                document.getElementById("productId").innerText = products.id || "---";
+                document.getElementById("productPrice").innerText = products.price || "---";
+                document.getElementById("state").innerText = products.state || "---";
+                document.getElementById("city").innerText = products.city || "---";
+                document.getElementById("region").innerText = products.area || "---";
+                document.getElementById("status").innerText = products.status || "---";
+            }
+        });
+
+        function logout() {
+            localStorage.removeItem("loggedInUser");
+            window.location.href = "index.html";
+        }
+    </script>
+
+</body>
+</html>
