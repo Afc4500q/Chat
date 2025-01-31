@@ -3,84 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة التحكم</title>
-    <style>
-        body { font-family: Arial, sans-serif; text-align: center; direction: rtl; background-color: #01343f; color: white; }
-        .container { width: 90%; max-width: 400px; margin: auto; background: #01343f; padding: 20px; border-radius: 10px; }
-        .user-info { background: orange; padding: 10px; border-radius: 10px; font-size: 20px; }
-        .stats { display: flex; flex-wrap: wrap; justify-content: space-between; margin-top: 10px; }
-        .stat-box { width: 30%; background: orange; padding: 10px; margin: 5px; border-radius: 10px; font-size: 18px; }
-        .products { background: white; color: black; margin-top: 10px; padding: 10px; border-radius: 10px; }
-        .product-item { text-align: right; margin-bottom: 10px; }
-    </style>
+    <title>تسجيل الدخول</title>
 </head>
 <body>
-
-    <div class="container">
-        <div class="user-info" id="userName">اسم المستخدم</div>
-
-        <div class="stats">
-            <div class="stat-box">الرصيد <br><span id="balance">0</span></div>
-            <div class="stat-box">الطلبات <br><span id="totalOrders">0</span></div>
-            <div class="stat-box">المعلقة <br><span id="pendingOrders">0</span></div>
-            <div class="stat-box">المرفوضة <br><span id="rejectedOrders">0</span></div>
-            <div class="stat-box">الناجحة <br><span id="successfulOrders">0</span></div>
-        </div>
-
-        <div class="products">
-            <h3>المنتجات</h3>
-            <div id="productList"></div>
-        </div>
-    </div>
-
+    <h2>تسجيل الدخول</h2>
+    <input type="text" id="username" placeholder="اسم المستخدم">
+    <input type="password" id="password" placeholder="كلمة المرور">
+    <button onclick="login()">تسجيل الدخول</button>
+    
     <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const user = JSON.parse(localStorage.getItem("user"));
-
-            if (!user) {
-                window.location.href = "login.html";
-                return;
-            }
-
-            document.getElementById("userName").textContent = user.name;
-            document.getElementById("balance").textContent = user.balance;
-            document.getElementById("totalOrders").textContent = user.totalOrders;
-            document.getElementById("pendingOrders").textContent = user.pendingOrders;
-            document.getElementById("rejectedOrders").textContent = user.rejectedOrders;
-            document.getElementById("successfulOrders").textContent = user.successfulOrders;
+        function login() {
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
 
             fetch("https://679353885eae7e5c4d8e46e3.mockapi.io/Yo")
                 .then(response => response.json())
                 .then(users => {
-                    const currentUser = users.find(u => u.user === user.user && u.pass === user.pass);
-                    if (currentUser && currentUser.products) {
-                        displayProducts(currentUser.products);
+                    const user = users.find(u => u.user === username && u.pass === password);
+                    
+                    if (user) {
+                        localStorage.setItem("user", JSON.stringify(user));
+                        window.location.href = "dashboard.html";
+                    } else {
+                        alert("خطأ في تسجيل الدخول!");
                     }
                 })
-                .catch(error => console.error("خطأ في جلب المنتجات:", error));
-        });
-
-        function displayProducts(products) {
-            const productList = document.getElementById("productList");
-            productList.innerHTML = "";
-
-            products.forEach(product => {
-                const productItem = document.createElement("div");
-                productItem.classList.add("product-item");
-                productItem.innerHTML = `
-                    <hr>
-                    <p><strong>اسم المنتج:</strong> ${product.name}</p>
-                    <p><strong>معرف المنتج:</strong> ${product.id}</p>
-                    <p><strong>سعر المنتج:</strong> ${product.price}</p>
-                    <p><strong>الولاية:</strong> ${product.state}</p>
-                    <p><strong>المدينة:</strong> ${product.city}</p>
-                    <p><strong>المنطقة:</strong> ${product.region}</p>
-                    <p><strong>الحالة:</strong> ${product.status}</p>
-                `;
-                productList.appendChild(productItem);
-            });
+                .catch(error => console.error("حدث خطأ:", error));
         }
     </script>
-
 </body>
 </html>
