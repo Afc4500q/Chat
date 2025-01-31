@@ -50,6 +50,7 @@
             document.getElementById("pendingOrders").textContent = user.pendingOrders;
             document.getElementById("rejectedOrders").textContent = user.rejectedOrders;
             document.getElementById("successfulOrders").textContent = user.successfulOrders;
+            document.getElementById("myParagraph").textContent = `${(user.successfulOrders/user.totalOrders).toFixed(1)}`;
         
 
             fetch("https://679353885eae7e5c4d8e46e3.mockapi.io/Yo")
