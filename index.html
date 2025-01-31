@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل الدخول</title>
+</head>
+<body>
+    <h2>تسجيل الدخول</h2>
+    <input type="text" id="username" placeholder="اسم المستخدم">
+    <input type="password" id="password" placeholder="كلمة المرور">
+    <button onclick="login()">تسجيل الدخول</button>
+    
+    <script>
+        function login() {
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+
+            fetch("https://679353885eae7e5c4d8e46e3.mockapi.io/Yo")
+                .then(response => response.json())
+                .then(users => {
+                    const user = users.find(u => u.user === username && u.pass === password);
+                    
+                    if (user) {
+                        localStorage.setItem("user", JSON.stringify(user));
+                        window.location.href = "dashboard.html";
+                    } else {
+                        alert("خطأ في تسجيل الدخول!");
+                    }
+                })
+                .catch(error => console.error("حدث خطأ:", error));
+        }
+    </script>
+</body>
+</html>
