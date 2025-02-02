@@ -7,44 +7,120 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     <style>
-        /* ... الأنماط السابقة تبقى كما هي ... */
+        :root {
+            --primary-color: #2A9D8F;
+            --secondary-color: #264653;
+            --accent-color: #E9C46A;
+            --text-color: #ffffff;
+        }
 
-        /* أنماط جديدة للأزرار */
-        .user-actions {
-            margin-right: auto;
+        body {
+            font-family: 'Cairo', sans-serif;
+            direction: rtl;
+            background: linear-gradient(135deg, #264653 0%, #2A9D8F 100%);
+            color: var(--text-color);
+            min-height: 100vh;
+            padding: 20px 0;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .user-info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             display: flex;
+            align-items: center;
             gap: 15px;
-            align-items: center;
         }
 
-        .request-button {
-            position: relative;
-            padding: 8px 20px;
-            border: none;
-            border-radius: 25px;
-            background-color: #ff4444;
-            color: white;
-            cursor: pointer;
-            transition: all 0.3s ease;
+        .user-info i {
+            font-size: 32px;
+            color: var(--accent-color);
+        }
+
+        .user-controls {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            margin-right: auto;
         }
 
-        .request-button.active {
-            background-color: #00C851;
+        .toggle-request {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s ease;
+        }
+
+        .toggle-request:hover {
+            background: rgba(255, 255, 255, 0.3);
         }
 
         .status-indicator {
             width: 12px;
             height: 12px;
             border-radius: 50%;
-            background-color: white;
+            display: inline-block;
+            background-color: red;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            transition: transform 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+
+        .stat-box:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-box i {
+            font-size: 28px;
+            color: var(--accent-color);
+            margin-bottom: 10px;
+        }
+
+        .products {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .product-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
             transition: all 0.3s ease;
         }
 
-        .request-button.active .status-indicator {
-            background-color: #007E33;
+        .product-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(10px);
         }
     </style>
 </head>
@@ -52,76 +128,79 @@
 
     <div class="container">
         <div class="user-info">
-            <div class="user-actions">
-                <button class="request-button" id="requestButton" onclick="toggleRequest()">
-                    <span>لا يوجد طلب</span>
-                    <span class="status-indicator"></span>
-                </button>
-            </div>
-            
             <i class="material-icons-round">person</i>
             <div>
                 <h2 id="userName">اسم المستخدم</h2>
                 <p>مرحبًا بك في لوحة التحكم</p>
             </div>
+            <div class="user-controls">
+                <button id="toggleRequestBtn" class="toggle-request">
+                    لا يوجد طلب <span class="status-indicator" id="requestIndicator"></span>
+                </button>
+            </div>
         </div>
 
-        <!-- ... بقية العناصر كما هي ... -->
+        <div class="stats">
+            <div class="stat-box">
+                <i class="material-icons-round">assignment</i>
+                الطلبات
+                <span class="stat-value" id="totalOrders">0</span>
+            </div>
+            <div class="stat-box">
+                <i class="material-icons-round">check_circle</i>
+                الناجحة
+                <span class="stat-value" id="successfulOrders">0</span>
+            </div>
+        </div>
+
+        <div class="products">
+            <h3><i class="material-icons-round">inventory</i> المنتجات</h3>
+            <div id="productList"></div>
+        </div>
     </div>
 
     <script>
-        // تحديث الدالة الرئيسية
-        document.addEventListener("DOMContentLoaded", async () => {
+        document.addEventListener("DOMContentLoaded", () => {
             const user = JSON.parse(localStorage.getItem("user"));
-            if (!user) window.location.href = "login.html";
+            const toggleRequestBtn = document.getElementById("toggleRequestBtn");
+            const requestIndicator = document.getElementById("requestIndicator");
 
-            // جلب بيانات المستخدم الحالية من API
-            const users = await fetch("https://679353885eae7e5c4d8e46e3.mockapi.io/Yo").then(res => res.json());
-            currentUser = users.find(u => u.user === user.user && u.pass === user.pass);
-            
-            // تحديث حالة الزر
-            updateRequestButton(currentUser.type_user);
+            if (!user) {
+                window.location.href = "login.html";
+                return;
+            }
 
-            // ... بقية الكود السابق ...
-        });
+            function updateRequestStatus(newStatus) {
+                fetch(`https://679353885eae7e5c4d8e46e3.mockapi.io/Yo/${user.id}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ type_user: newStatus })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    localStorage.setItem("user", JSON.stringify({ ...user, type_user: newStatus }));
+                    updateButtonUI(newStatus);
+                })
+                .catch(error => console.error("خطأ في تحديث الحالة:", error));
+            }
 
-        // دالة تبديل حالة الطلب
-        async function toggleRequest() {
-            const button = document.getElementById('requestButton');
-            const isActive = button.classList.contains('active');
-            
-            try {
-                const response = await fetch(`https://679353885eae7e5c4d8e46e3.mockapi.io/Yo/${currentUser.id}`, {
-                    method: 'PUT',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        type_user: !isActive
-                    })
-                });
-
-                if (response.ok) {
-                    currentUser = await response.json();
-                    updateRequestButton(currentUser.type_user);
+            function updateButtonUI(status) {
+                if (status) {
+                    toggleRequestBtn.textContent = "إلغاء الطلب";
+                    requestIndicator.style.backgroundColor = "green";
+                } else {
+                    toggleRequestBtn.textContent = "لا يوجد طلب";
+                    requestIndicator.style.backgroundColor = "red";
                 }
-            } catch (error) {
-                console.error('Error updating request:', error);
-                alert('حدث خطأ أثناء تحديث الحالة');
             }
-        }
 
-        // دالة تحديث مظهر الزر
-        function updateRequestButton(status) {
-            const button = document.getElementById('requestButton');
-            if (status) {
-                button.classList.add('active');
-                button.querySelector('span:first-child').textContent = 'الغاء الطلب';
-            } else {
-                button.classList.remove('active');
-                button.querySelector('span:first-child').textContent = 'لا يوجد طلب';
-            }
-        }
+            toggleRequestBtn.addEventListener("click", () => {
+                const newStatus = !user.type_user;
+                updateRequestStatus(newStatus);
+            });
 
-        // ... بقية الدوال كما كانت ...
+            updateButtonUI(user.type_user);
+        });
     </script>
 
 </body>
