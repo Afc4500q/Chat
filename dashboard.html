@@ -7,18 +7,119 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     <style>
-        /* ... (الأنماط السابقة تبقى كما هي) ... */
+        :root {
+            --primary-color: #2A9D8F;
+            --secondary-color: #264653;
+            --accent-color: #E9C46A;
+            --text-color: #ffffff;
+        }
 
-        /* أنماط جديدة للإعدادات */
-        .settings-wrapper {
+        body {
+            font-family: 'Cairo', sans-serif;
+            direction: rtl;
+            background: linear-gradient(135deg, #264653 0%, #2A9D8F 100%);
+            color: var(--text-color);
+            min-height: 100vh;
+            padding: 20px 0;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .user-info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 15px;
             position: relative;
-            margin-right: auto;
+        }
+
+        .user-info i {
+            font-size: 32px;
+            color: var(--accent-color);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            transition: transform 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+
+        .stat-box:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-box i {
+            font-size: 28px;
+            color: var(--accent-color);
+            margin-bottom: 10px;
+        }
+
+        .products {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .product-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .product-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(10px);
+        }
+
+        h3 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 24px;
+            color: var(--accent-color);
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            display: block;
+            margin-top: 5px;
+        }
+
+        /* أنماط الإعدادات الجديدة */
+        .settings-icon {
+            position: absolute;
+            left: 20px;
+            cursor: pointer;
+            transition: transform 0.3s;
         }
 
         .settings-menu {
             position: absolute;
             top: 100%;
-            left: 0;
+            left: 20px;
             background: rgba(255, 255, 255, 0.9);
             border-radius: 8px;
             padding: 10px;
@@ -126,21 +227,38 @@
 <body>
 
     <!-- إضافة قائمة الإعدادات -->
-    <div class="settings-wrapper">
-        <i class="material-icons-round settings-icon" onclick="toggleSettings()">settings</i>
-        <div class="settings-menu" id="settingsMenu">
-            <div class="menu-item" onclick="showEditForm('name')">
-                <i class="material-icons-round">edit</i>
-                تغيير الاسم
+    <div class="container">
+        <div class="user-info">
+            <i class="material-icons-round settings-icon" onclick="toggleSettings()">settings</i>
+            <div class="settings-menu" id="settingsMenu">
+                <div class="menu-item" onclick="showEditForm('name')">
+                    <i class="material-icons-round">edit</i>
+                    تغيير الاسم
+                </div>
+                <div class="menu-item" onclick="showEditForm('password')">
+                    <i class="material-icons-round">lock_reset</i>
+                    تغيير كلمة المرور
+                </div>
+                <div class="menu-item" onclick="showEditForm('username')">
+                    <i class="material-icons-round">person</i>
+                    تغيير اليوزر
+                </div>
             </div>
-            <div class="menu-item" onclick="showEditForm('password')">
-                <i class="material-icons-round">lock_reset</i>
-                تغيير كلمة المرور
+            <i class="material-icons-round">person</i>
+            <div>
+                <h2 id="userName">اسم المستخدم</h2>
+                <p>مرحبًا بك في لوحة التحكم</p>
             </div>
-            <div class="menu-item" onclick="showEditForm('username')">
-                <i class="material-icons-round">person</i>
-                تغيير اليوزر
-            </div>
+        </div>
+
+        <!-- باقي عناصر لوحة التحكم -->
+        <div class="stats">
+            <!-- ... (العناصر الإحصائية كما هي) ... -->
+        </div>
+
+        <div class="products">
+            <h3><i class="material-icons-round">inventory</i> المنتجات</h3>
+            <div id="productList"></div>
         </div>
     </div>
 
@@ -159,23 +277,15 @@
         </div>
     </div>
 
-    <div class="container">
-        <!-- ... (بقية العناصر كما كانت) ... -->
-    </div>
-
     <script>
-        // متغيرات عامة
         let currentUser = null;
-        let currentEditType = null;
 
         document.addEventListener("DOMContentLoaded", () => {
             const user = JSON.parse(localStorage.getItem("user"));
             if (!user) window.location.href = "login.html";
 
-            // تحديث بيانات المستخدم
             updateUserData(user);
             
-            // جلب البيانات من API
             fetch("https://679353885eae7e5c4d8e46e3.mockapi.io/Yo")
                 .then(res => res.json())
                 .then(users => {
@@ -189,7 +299,6 @@
         }
 
         function showEditForm(type) {
-            currentEditType = type;
             const modalTitle = document.getElementById('modalTitle');
             const formFields = document.getElementById('formFields');
             
@@ -235,16 +344,16 @@
             const currentPassword = formData.get('currentPassword');
             const errorMessage = document.getElementById('errorMessage');
 
-            // التحقق من كلمة المرور
             if (currentPassword && currentPassword !== currentUser.pass) {
                 errorMessage.textContent = 'كلمة المرور الحالية غير صحيحة';
                 errorMessage.style.display = 'block';
                 return;
             }
 
-            // تحديث البيانات
             const updatedData = {};
-            switch(currentEditType) {
+            const type = e.target.closest('form').dataset.type;
+
+            switch(type) {
                 case 'name':
                     updatedData.name = formData.get('newName');
                     break;
@@ -287,7 +396,6 @@
                 (user.totalOrders / user.successfulOrders).toFixed(1) : 0;
             document.getElementById("myParagraph").textContent = rating;
             
-            // تحديث localStorage
             localStorage.setItem("user", JSON.stringify({
                 user: user.user,
                 pass: user.pass,
@@ -296,7 +404,18 @@
             }));
         }
 
-        // ... (بقية الدوال كما كانت) ...
+        function displayProducts(products) {
+            const productList = document.getElementById("productList");
+            productList.innerHTML = products.map(product => `
+                <div class="product-item">
+                    <p><strong><i class="material-icons-round">sell</i> اسم المنتج:</strong> ${product.name}</p>
+                    <p><strong><i class="material-icons-round">fingerprint</i> المعرف:</strong> ${product.id}</p>
+                    <p><strong><i class="material-icons-round">attach_money</i> السعر:</strong> ${product.price}</p>
+                    <p><strong><i class="material-icons-round">location_on</i> الموقع:</strong> ${product.state} - ${product.city} - ${product.area}</p>
+                    <p><strong><i class="material-icons-round">status</i> الحالة:</strong> ${product.status}</p>
+                </div>
+            `).join('');
+        }
     </script>
 
 </body>
