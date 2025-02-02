@@ -35,8 +35,6 @@
             padding: 20px;
             border-radius: 15px;
             margin-bottom: 20px;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             display: flex;
             align-items: center;
             gap: 15px;
@@ -90,7 +88,6 @@
             border-radius: 12px;
             text-align: center;
             transition: transform 0.3s ease;
-            backdrop-filter: blur(5px);
         }
 
         .stat-box:hover {
@@ -107,7 +104,6 @@
             background: rgba(255, 255, 255, 0.1);
             border-radius: 15px;
             padding: 20px;
-            backdrop-filter: blur(10px);
         }
 
         .product-item {
@@ -115,12 +111,6 @@
             padding: 15px;
             border-radius: 10px;
             margin-bottom: 15px;
-            transition: all 0.3s ease;
-        }
-
-        .product-item:hover {
-            background: rgba(255, 255, 255, 0.1);
-            transform: translateX(10px);
         }
     </style>
 </head>
@@ -131,7 +121,7 @@
             <i class="material-icons-round">person</i>
             <div>
                 <h2 id="userName">اسم المستخدم</h2>
-                <p>مرحبًا بك في لوحة التحكم</p>
+                <p id="userEmail">البريد الإلكتروني</p>
             </div>
             <div class="user-controls">
                 <button id="toggleRequestBtn" class="toggle-request">
@@ -160,46 +150,68 @@
     </div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const user = JSON.parse(localStorage.getItem("user"));
+        document.addEventListener("DOMContentLoaded", async () => {
             const toggleRequestBtn = document.getElementById("toggleRequestBtn");
             const requestIndicator = document.getElementById("requestIndicator");
+            const userNameElement = document.getElementById("userName");
+            const userEmailElement = document.getElementById("userEmail");
+            const totalOrdersElement = document.getElementById("totalOrders");
+            const successfulOrdersElement = document.getElementById("successfulOrders");
+            const productListElement = document.getElementById("productList");
 
-            if (!user) {
-                window.location.href = "login.html";
-                return;
+            try {
+                const response = await fetch("https://679353885eae7e5c4d8e46e3.mockapi.io/Yo");
+                const data = await response.json();
+
+                if (data.length === 0) {
+                    console.error("لم يتم العثور على بيانات");
+                    return;
+                }
+
+                // استخراج أول مستخدم (يمكن تعديله حسب الحاجة)
+                const user = data[0];
+
+                // تحديث معلومات المستخدم
+                userNameElement.textContent = user.name || "اسم غير متوفر";
+                userEmailElement.textContent = user.email || "بريد غير متوفر";
+                updateButtonUI(user.type_user);
+
+                // تحديث أزرار الطلب
+                toggleRequestBtn.addEventListener("click", async () => {
+                    const newStatus = !user.type_user;
+                    await updateRequestStatus(user.id, newStatus);
+                    user.type_user = newStatus;
+                    updateButtonUI(newStatus);
+                });
+
+                // تحديث الإحصائيات
+                totalOrdersElement.textContent = data.length;
+                successfulOrdersElement.textContent = data.filter(item => item.type_user).length;
+
+                // عرض المنتجات
+                productListElement.innerHTML = data.map(product => `
+                    <div class="product-item">
+                        <strong>${product.product_name || "منتج غير معروف"}</strong> - 
+                        <span>${product.price || "سعر غير متوفر"}$</span>
+                    </div>
+                `).join("");
+
+            } catch (error) {
+                console.error("حدث خطأ أثناء جلب البيانات:", error);
             }
 
-            function updateRequestStatus(newStatus) {
-                fetch(`https://679353885eae7e5c4d8e46e3.mockapi.io/Yo/${user.id}`, {
+            async function updateRequestStatus(userId, newStatus) {
+                await fetch(`https://679353885eae7e5c4d8e46e3.mockapi.io/Yo/${userId}`, {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ type_user: newStatus })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    localStorage.setItem("user", JSON.stringify({ ...user, type_user: newStatus }));
-                    updateButtonUI(newStatus);
-                })
-                .catch(error => console.error("خطأ في تحديث الحالة:", error));
+                });
             }
 
             function updateButtonUI(status) {
-                if (status) {
-                    toggleRequestBtn.textContent = "إلغاء الطلب";
-                    requestIndicator.style.backgroundColor = "green";
-                } else {
-                    toggleRequestBtn.textContent = "لا يوجد طلب";
-                    requestIndicator.style.backgroundColor = "red";
-                }
+                toggleRequestBtn.textContent = status ? "إلغاء الطلب" : "لا يوجد طلب";
+                requestIndicator.style.backgroundColor = status ? "green" : "red";
             }
-
-            toggleRequestBtn.addEventListener("click", () => {
-                const newStatus = !user.type_user;
-                updateRequestStatus(newStatus);
-            });
-
-            updateButtonUI(user.type_user);
         });
     </script>
 
