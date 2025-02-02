@@ -1,41 +1,168 @@
+
 <!DOCTYPE html>
 <html lang="ar">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>لوحة التحكم</title>
+    <!-- استيراد خطوط جوجل -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- استيراد ايقونات Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; direction: rtl; background-color: #01343f; color: white; }
-        .container { width: 90%; max-width: 400px; margin: auto; background: #01343f; padding: 20px; border-radius: 10px; }
-        .user-info { background: orange; padding: 10px; border-radius: 10px; font-size: 20px; }
-        .stats { display: flex; flex-wrap: wrap; justify-content: space-between; margin-top: 10px; }
-        .stat-box { width: 30%; background: orange; padding: 10px; margin: 5px; border-radius: 10px; font-size: 18px; }
-        .products { background: white; color: black; margin-top: 10px; padding: 10px; border-radius: 10px; }
-        .product-item { text-align: right; margin-bottom: 10px; }
+        :root {
+            --primary-color: #2A9D8F;
+            --secondary-color: #264653;
+            --accent-color: #E9C46A;
+            --text-color: #ffffff;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            direction: rtl;
+            background: linear-gradient(135deg, #264653 0%, #2A9D8F 100%);
+            color: var(--text-color);
+            min-height: 100vh;
+            padding: 20px 0;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .user-info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-info i {
+            font-size: 32px;
+            color: var(--accent-color);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            transition: transform 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+
+        .stat-box:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-box i {
+            font-size: 28px;
+            color: var(--accent-color);
+            margin-bottom: 10px;
+        }
+
+        .products {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .product-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .product-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(10px);
+        }
+
+        h3 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 24px;
+            color: var(--accent-color);
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            display: block;
+            margin-top: 5px;
+        }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <div class="user-info" id="userName">اسم المستخدم</div>
+        <div class="user-info">
+            <i class="material-icons-round">person</i>
+            <div>
+                <h2 id="userName">اسم المستخدم</h2>
+                <p>مرحبًا بك في لوحة التحكم</p>
+            </div>
+        </div>
 
         <div class="stats">
-            <div class="stat-box">الرصيد <br><span id="balance">0</span></div>
-            <div class="stat-box">الطلبات <br><span id="totalOrders">0</span></div>
-            <div class="stat-box">المعلقة <br><span id="pendingOrders">0</span></div>
-            <div class="stat-box">المرفوضة <br><span id="rejectedOrders">0</span></div>
-            <div class="stat-box">الناجحة <br><span id="successfulOrders">0</span></div>
-             <div class="stat-box">التقييم <br><span id="myParagraph">0</span></div>
-            
+            <div class="stat-box">
+                <i class="material-icons-round">account_balance_wallet</i>
+                الرصيد
+                <span class="stat-value" id="balance">0</span>
+            </div>
+            <div class="stat-box">
+                <i class="material-icons-round">assignment</i>
+                الطلبات
+                <span class="stat-value" id="totalOrders">0</span>
+            </div>
+            <div class="stat-box">
+                <i class="material-icons-round">pending_actions</i>
+                المعلقة
+                <span class="stat-value" id="pendingOrders">0</span>
+            </div>
+            <div class="stat-box">
+                <i class="material-icons-round">cancel</i>
+                المرفوضة
+                <span class="stat-value" id="rejectedOrders">0</span>
+            </div>
+            <div class="stat-box">
+                <i class="material-icons-round">check_circle</i>
+                الناجحة
+                <span class="stat-value" id="successfulOrders">0</span>
+            </div>
+            <div class="stat-box">
+                <i class="material-icons-round">star_rate</i>
+                التقييم
+                <span class="stat-value" id="myParagraph">0</span>
+            </div>
         </div>
 
         <div class="products">
-            <h3>المنتجات</h3>
+            <h3><i class="material-icons-round">inventory</i> المنتجات</h3>
             <div id="productList"></div>
         </div>
     </div>
 
     <script>
+        // نفس الكود السابق مع تعديل بسيط لحساب التقييم
         document.addEventListener("DOMContentLoaded", () => {
             const user = JSON.parse(localStorage.getItem("user"));
 
@@ -44,20 +171,25 @@
                 return;
             }
 
+            // تحديث البيانات
             document.getElementById("userName").textContent = user.name;
             document.getElementById("balance").textContent = user.balance;
             document.getElementById("totalOrders").textContent = user.totalOrders;
             document.getElementById("pendingOrders").textContent = user.pendingOrders;
             document.getElementById("rejectedOrders").textContent = user.rejectedOrders;
             document.getElementById("successfulOrders").textContent = user.successfulOrders;
-            document.getElementById("myParagraph").textContent = `${(user.totalOrders/user.successfulOrders).toFixed(1)}`;
-        
+            
+            // تجنب القسمة على صفر
+            const rating = user.successfulOrders > 0 ? 
+                (user.totalOrders / user.successfulOrders).toFixed(1) : 0;
+            document.getElementById("myParagraph").textContent = rating;
 
+            // جلب المنتجات
             fetch("https://679353885eae7e5c4d8e46e3.mockapi.io/Yo")
                 .then(response => response.json())
                 .then(users => {
                     const currentUser = users.find(u => u.user === user.user && u.pass === user.pass);
-                    if (currentUser && currentUser.products) {
+                    if (currentUser?.products) {
                         displayProducts(currentUser.products);
                     }
                 })
@@ -66,23 +198,15 @@
 
         function displayProducts(products) {
             const productList = document.getElementById("productList");
-            productList.innerHTML = "";
-
-            products.forEach(product => {
-                const productItem = document.createElement("div");
-                productItem.classList.add("product-item");
-                productItem.innerHTML = `
-                    <hr>
-                    <p><strong>اسم المنتج:</strong> ${product.name}</p>
-                    <p><strong>معرف المنتج:</strong> ${product.id}</p>
-                    <p><strong>سعر المنتج:</strong> ${product.price}</p>
-                    <p><strong>الولاية:</strong> ${product.state}</p>
-                    <p><strong>المدينة:</strong> ${product.city}</p>
-                    <p><strong>المنطقة:</strong> ${product.area}</p>
-                    <p><strong>الحالة:</strong> ${product.status}</p>
-                `;
-                productList.appendChild(productItem);
-            });
+            productList.innerHTML = products.map(product => `
+                <div class="product-item">
+                    <p><strong><i class="material-icons-round">sell</i> اسم المنتج:</strong> ${product.name}</p>
+                    <p><strong><i class="material-icons-round">fingerprint</i> المعرف:</strong> ${product.id}</p>
+                    <p><strong><i class="material-icons-round">attach_money</i> السعر:</strong> ${product.price}</p>
+                    <p><strong><i class="material-icons-round">location_on</i> الموقع:</strong> ${product.state} - ${product.city} - ${product.area}</p>
+                    <p><strong><i class="material-icons-round">status</i> الحالة:</strong> ${product.status}</p>
+                </div>
+            `).join('');
         }
     </script>
 
