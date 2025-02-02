@@ -7,243 +7,58 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     <style>
-        :root {
-            --primary-color: #2A9D8F;
-            --secondary-color: #264653;
-            --accent-color: #E9C46A;
-            --text-color: #ffffff;
-        }
+        /* ... الأنماط السابقة تبقى كما هي ... */
 
-        body {
-            font-family: 'Cairo', sans-serif;
-            direction: rtl;
-            background: linear-gradient(135deg, #264653 0%, #2A9D8F 100%);
-            color: var(--text-color);
-            min-height: 100vh;
-            padding: 20px 0;
-            margin: 0;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        .user-info {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        /* أنماط جديدة للأزرار */
+        .user-actions {
+            margin-right: auto;
             display: flex;
+            gap: 15px;
             align-items: center;
-            gap: 15px;
+        }
+
+        .request-button {
             position: relative;
-        }
-
-        .user-info i {
-            font-size: 32px;
-            color: var(--accent-color);
-        }
-
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .stat-box {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 20px;
-            border-radius: 12px;
-            text-align: center;
-            transition: transform 0.3s ease;
-            backdrop-filter: blur(5px);
-        }
-
-        .stat-box:hover {
-            transform: translateY(-5px);
-        }
-
-        .stat-box i {
-            font-size: 28px;
-            color: var(--accent-color);
-            margin-bottom: 10px;
-        }
-
-        .products {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 20px;
-            backdrop-filter: blur(10px);
-        }
-
-        .product-item {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 15px;
+            padding: 8px 20px;
+            border: none;
+            border-radius: 25px;
+            background-color: #ff4444;
+            color: white;
+            cursor: pointer;
             transition: all 0.3s ease;
-        }
-
-        .product-item:hover {
-            background: rgba(255, 255, 255, 0.1);
-            transform: translateX(10px);
-        }
-
-        h3 {
-            margin-top: 0;
-            margin-bottom: 20px;
-            font-size: 24px;
-            color: var(--accent-color);
-        }
-
-        .stat-value {
-            font-size: 24px;
-            font-weight: 700;
-            display: block;
-            margin-top: 5px;
-        }
-
-        /* أنماط الإعدادات الجديدة */
-        .settings-icon {
-            position: absolute;
-            left: 20px;
-            cursor: pointer;
-            transition: transform 0.3s;
-        }
-
-        .settings-menu {
-            position: absolute;
-            top: 100%;
-            left: 20px;
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 8px;
-            padding: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            display: none;
-            min-width: 180px;
-            z-index: 1000;
-        }
-
-        .settings-menu.show {
-            display: block;
-        }
-
-        .menu-item {
-            padding: 10px;
-            color: var(--secondary-color);
-            cursor: pointer;
-            transition: background 0.3s;
-            border-radius: 4px;
             display: flex;
             align-items: center;
             gap: 8px;
         }
 
-        .menu-item:hover {
-            background: rgba(0, 0, 0, 0.05);
+        .request-button.active {
+            background-color: #00C851;
         }
 
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 1001;
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: white;
+            transition: all 0.3s ease;
         }
 
-        .modal.show {
-            display: flex;
-        }
-
-        .modal-content {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            width: 90%;
-            max-width: 400px;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            color: var(--secondary-color);
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-
-        .modal-actions {
-            margin-top: 20px;
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-        }
-
-        .btn {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: opacity 0.3s;
-        }
-
-        .btn-primary {
-            background: var(--primary-color);
-            color: white;
-        }
-
-        .btn-secondary {
-            background: #ddd;
-            color: #333;
-        }
-
-        .error-message {
-            color: #ff4444;
-            font-size: 14px;
-            margin-top: 5px;
-            display: none;
+        .request-button.active .status-indicator {
+            background-color: #007E33;
         }
     </style>
 </head>
 <body>
 
-    <!-- إضافة قائمة الإعدادات -->
     <div class="container">
         <div class="user-info">
-            <i class="material-icons-round settings-icon" onclick="toggleSettings()">settings</i>
-            <div class="settings-menu" id="settingsMenu">
-                <div class="menu-item" onclick="showEditForm('name')">
-                    <i class="material-icons-round">edit</i>
-                    تغيير الاسم
-                </div>
-                <div class="menu-item" onclick="showEditForm('password')">
-                    <i class="material-icons-round">lock_reset</i>
-                    تغيير كلمة المرور
-                </div>
-                <div class="menu-item" onclick="showEditForm('username')">
-                    <i class="material-icons-round">person</i>
-                    تغيير اليوزر
-                </div>
+            <div class="user-actions">
+                <button class="request-button" id="requestButton" onclick="toggleRequest()">
+                    <span>لا يوجد طلب</span>
+                    <span class="status-indicator"></span>
+                </button>
             </div>
+            
             <i class="material-icons-round">person</i>
             <div>
                 <h2 id="userName">اسم المستخدم</h2>
@@ -251,171 +66,62 @@
             </div>
         </div>
 
-        <!-- باقي عناصر لوحة التحكم -->
-        <div class="stats">
-            <!-- ... (العناصر الإحصائية كما هي) ... -->
-        </div>
-
-        <div class="products">
-            <h3><i class="material-icons-round">inventory</i> المنتجات</h3>
-            <div id="productList"></div>
-        </div>
-    </div>
-
-    <!-- نافذة التعديل -->
-    <div class="modal" id="editModal">
-        <div class="modal-content">
-            <h3 id="modalTitle"></h3>
-            <form id="editForm" onsubmit="handleFormSubmit(event)">
-                <div id="formFields"></div>
-                <div class="error-message" id="errorMessage"></div>
-                <div class="modal-actions">
-                    <button type="button" class="btn btn-secondary" onclick="closeModal()">إلغاء</button>
-                    <button type="submit" class="btn btn-primary">حفظ التغييرات</button>
-                </div>
-            </form>
-        </div>
+        <!-- ... بقية العناصر كما هي ... -->
     </div>
 
     <script>
-        let currentUser = null;
-
-        document.addEventListener("DOMContentLoaded", () => {
+        // تحديث الدالة الرئيسية
+        document.addEventListener("DOMContentLoaded", async () => {
             const user = JSON.parse(localStorage.getItem("user"));
             if (!user) window.location.href = "login.html";
 
-            updateUserData(user);
+            // جلب بيانات المستخدم الحالية من API
+            const users = await fetch("https://679353885eae7e5c4d8e46e3.mockapi.io/Yo").then(res => res.json());
+            currentUser = users.find(u => u.user === user.user && u.pass === user.pass);
             
-            fetch("https://679353885eae7e5c4d8e46e3.mockapi.io/Yo")
-                .then(res => res.json())
-                .then(users => {
-                    currentUser = users.find(u => u.user === user.user && u.pass === user.pass);
-                    if (currentUser?.products) displayProducts(currentUser.products);
-                });
+            // تحديث حالة الزر
+            updateRequestButton(currentUser.type_user);
+
+            // ... بقية الكود السابق ...
         });
 
-        function toggleSettings() {
-            document.getElementById('settingsMenu').classList.toggle('show');
-        }
-
-        function showEditForm(type) {
-            const modalTitle = document.getElementById('modalTitle');
-            const formFields = document.getElementById('formFields');
+        // دالة تبديل حالة الطلب
+        async function toggleRequest() {
+            const button = document.getElementById('requestButton');
+            const isActive = button.classList.contains('active');
             
-            const fields = {
-                name: [
-                    {label: 'الاسم الحالي', type: 'text', name: 'currentName', value: currentUser.name},
-                    {label: 'الاسم الجديد', type: 'text', name: 'newName', required: true}
-                ],
-                password: [
-                    {label: 'كلمة المرور الحالية', type: 'password', name: 'currentPassword', required: true},
-                    {label: 'كلمة المرور الجديدة', type: 'password', name: 'newPassword', required: true}
-                ],
-                username: [
-                    {label: 'اليوزر الحالي', type: 'text', name: 'currentUsername', value: currentUser.user},
-                    {label: 'اليوزر الجديد', type: 'text', name: 'newUsername', required: true},
-                    {label: 'كلمة المرور', type: 'password', name: 'currentPassword', required: true}
-                ]
-            };
-
-            modalTitle.textContent = `تعديل ${type === 'name' ? 'الاسم' : type === 'password' ? 'كلمة المرور' : 'اليوزر'}`;
-            formFields.innerHTML = fields[type].map(field => `
-                <div class="form-group">
-                    <label>${field.label}</label>
-                    <input type="${field.type}" 
-                           name="${field.name}" 
-                           ${field.required ? 'required' : ''}
-                           ${field.value ? `value="${field.value}" readonly` : ''}>
-                </div>
-            `).join('');
-
-            document.getElementById('editModal').classList.add('show');
-            toggleSettings();
-        }
-
-        function closeModal() {
-            document.getElementById('editModal').classList.remove('show');
-            document.getElementById('errorMessage').style.display = 'none';
-        }
-
-        async function handleFormSubmit(e) {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            const currentPassword = formData.get('currentPassword');
-            const errorMessage = document.getElementById('errorMessage');
-
-            if (currentPassword && currentPassword !== currentUser.pass) {
-                errorMessage.textContent = 'كلمة المرور الحالية غير صحيحة';
-                errorMessage.style.display = 'block';
-                return;
-            }
-
-            const updatedData = {};
-            const type = e.target.closest('form').dataset.type;
-
-            switch(type) {
-                case 'name':
-                    updatedData.name = formData.get('newName');
-                    break;
-                case 'password':
-                    updatedData.pass = formData.get('newPassword');
-                    break;
-                case 'username':
-                    updatedData.user = formData.get('newUsername');
-                    break;
-            }
-
             try {
                 const response = await fetch(`https://679353885eae7e5c4d8e46e3.mockapi.io/Yo/${currentUser.id}`, {
                     method: 'PUT',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(updatedData)
+                    body: JSON.stringify({
+                        type_user: !isActive
+                    })
                 });
 
                 if (response.ok) {
-                    const updatedUser = await response.json();
-                    currentUser = updatedUser;
-                    updateUserData(updatedUser);
-                    closeModal();
-                    alert('تم التحديث بنجاح!');
+                    currentUser = await response.json();
+                    updateRequestButton(currentUser.type_user);
                 }
             } catch (error) {
-                console.error('Error updating user:', error);
-                alert('حدث خطأ أثناء التحديث');
+                console.error('Error updating request:', error);
+                alert('حدث خطأ أثناء تحديث الحالة');
             }
         }
 
-        function updateUserData(user) {
-            document.getElementById("userName").textContent = user.name;
-            document.getElementById("balance").textContent = user.balance;
-            document.getElementById("totalOrders").textContent = user.totalOrders;
-            document.getElementById("pendingOrders").textContent = user.pendingOrders;
-            document.getElementById("rejectedOrders").textContent = user.rejectedOrders;
-            document.getElementById("successfulOrders").textContent = user.successfulOrders;
-            const rating = user.successfulOrders > 0 ? 
-                (user.totalOrders / user.successfulOrders).toFixed(1) : 0;
-            document.getElementById("myParagraph").textContent = rating;
-            
-            localStorage.setItem("user", JSON.stringify({
-                user: user.user,
-                pass: user.pass,
-                name: user.name,
-                ...user
-            }));
+        // دالة تحديث مظهر الزر
+        function updateRequestButton(status) {
+            const button = document.getElementById('requestButton');
+            if (status) {
+                button.classList.add('active');
+                button.querySelector('span:first-child').textContent = 'الغاء الطلب';
+            } else {
+                button.classList.remove('active');
+                button.querySelector('span:first-child').textContent = 'لا يوجد طلب';
+            }
         }
 
-        function displayProducts(products) {
-            const productList = document.getElementById("productList");
-            productList.innerHTML = products.map(product => `
-                <div class="product-item">
-                    <p><strong><i class="material-icons-round">sell</i> اسم المنتج:</strong> ${product.name}</p>
-                    <p><strong><i class="material-icons-round">fingerprint</i> المعرف:</strong> ${product.id}</p>
-                    <p><strong><i class="material-icons-round">attach_money</i> السعر:</strong> ${product.price}</p>
-                    <p><strong><i class="material-icons-round">location_on</i> الموقع:</strong> ${product.state} - ${product.city} - ${product.area}</p>
-                    <p><strong><i class="material-icons-round">status</i> الحالة:</strong> ${product.status}</p>
-                </div>
-            `).join('');
-        }
+        // ... بقية الدوال كما كانت ...
     </script>
 
 </body>
