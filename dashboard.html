@@ -172,12 +172,12 @@
                 const user = data[0];
 
                 // تحديث معلومات المستخدم
-                userNameElement.textContent = user.name || "اسم غير متوفر";
-                userNameElement.textContent = user.productList || "اسم غير متوفر";
+                toggleRequestBtn.textContent = user.name || "اسم غير متوفر";
+                requestIndicator.textContent = user.productList || "اسم غير متوفر";
                 userNameElement.textContent = user.successfulOrders || "اسم غير متوفر";
-                userNameElement.textContent = user.requestIndicator || "اسم غير متوفر";
-                userNameElement.textContent = user.toggleRequestBtn || "اسم غير متوفر";
-                userNameElement.textContent = user.totalOrders || "اسم غير متوفر";
+                totalOrdersElement.textContent = user.requestIndicator || "اسم غير متوفر";
+                successfulOrdersElement.textContent = user.toggleRequestBtn || "اسم غير متوفر";
+                productListElement.textContent = user.totalOrders || "اسم غير متوفر";
                 userEmailElement.textContent = user.user || "بريد غير متوفر";
                 updateButtonUI(user.type_user);
 
