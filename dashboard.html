@@ -131,11 +131,7 @@
         </div>
 
         <div class="stats">
-            <div class="stat-box">
-                <i class="material-icons-round">assignment</i>
-                الطلبات
-                <span class="stat-value" id="totalOrders">0</span>
-            </div>
+            
 
              <div class="stat-box">
                 <i class="material-icons-round">assignment</i>
@@ -197,12 +193,12 @@
                 const user = data[0];
 
                 // تحديث معلومات المستخدم
-                toggleRequestBtn.textContent = user.name || "اسم غير متوفر";
-                requestIndicator.textContent = user.productList || "اسم غير متوفر";
-                userNameElement.textContent = user.successfulOrders || "اسم غير متوفر";
-                totalOrdersElement.textContent = user.requestIndicator || "اسم غير متوفر";
-                successfulOrdersElement.textContent = user.toggleRequestBtn || "اسم غير متوفر";
-                productListElement.textContent = user.totalOrders || "اسم غير متوفر";
+                toggleRequestBtn.textContent = user.toggleRequestBtn || "اسم غير متوفر";
+                requestIndicator.textContent = user.requestIndicator || "اسم غير متوفر";
+                userNameElement.textContent = user.name || "اسم غير متوفر";
+                totalOrdersElement.textContent = user.totalOrders || "اسم غير متوفر";
+                successfulOrdersElement.textContent = user.successfulOrders || "اسم غير متوفر";
+                productListElement.textContent = user.productList || "اسم غير متوفر";
                 userEmailElement.textContent = user.user || "بريد غير متوفر";
                 updateButtonUI(user.type_user);
 
@@ -221,8 +217,8 @@
                 // عرض المنتجات
                 productListElement.innerHTML = data.map(product => `
                     <div class="product-item">
-                        <strong>${user.name || "منتج غير معروف"}</strong> - 
-                        <span>${user.price || "سعر غير متوفر"}$</span>
+                        <strong>${product.name || "منتج غير معروف"}</strong> - 
+                        <span>${product.price || "سعر غير متوفر"}$</span>
                     </div>
                 `).join("");
 
