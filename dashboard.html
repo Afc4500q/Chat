@@ -153,8 +153,8 @@
         document.addEventListener("DOMContentLoaded", async () => {
             const toggleRequestBtn = document.getElementById("toggleRequestBtn");
             const requestIndicator = document.getElementById("requestIndicator");
-            const userNameElement = document.getElementById("userName");
-            const userEmailElement = document.getElementById("userEmail");
+            const userNameElement = document.getElementById("name");
+            const userEmailElement = document.getElementById("user");
             const totalOrdersElement = document.getElementById("totalOrders");
             const successfulOrdersElement = document.getElementById("successfulOrders");
             const productListElement = document.getElementById("productList");
@@ -191,8 +191,8 @@
                 // عرض المنتجات
                 productListElement.innerHTML = data.map(product => `
                     <div class="product-item">
-                        <strong>${product.product_name || "منتج غير معروف"}</strong> - 
-                        <span>${product.price || "سعر غير متوفر"}$</span>
+                        <strong>${products.name || "منتج غير معروف"}</strong> - 
+                        <span>${products.price || "سعر غير متوفر"}$</span>
                     </div>
                 `).join("");
 
