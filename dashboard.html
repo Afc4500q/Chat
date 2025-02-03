@@ -173,7 +173,12 @@
 
                 // تحديث معلومات المستخدم
                 userNameElement.textContent = user.name || "اسم غير متوفر";
-                userEmailElement.textContent = user.email || "بريد غير متوفر";
+                userNameElement.textContent = user.productList || "اسم غير متوفر";
+                userNameElement.textContent = user.successfulOrders || "اسم غير متوفر";
+                userNameElement.textContent = user.requestIndicator || "اسم غير متوفر";
+                userNameElement.textContent = user.toggleRequestBtn || "اسم غير متوفر";
+                userNameElement.textContent = user.totalOrders || "اسم غير متوفر";
+                userEmailElement.textContent = user.user || "بريد غير متوفر";
                 updateButtonUI(user.type_user);
 
                 // تحديث أزرار الطلب
