@@ -191,8 +191,8 @@
                 // عرض المنتجات
                 productListElement.innerHTML = data.map(product => `
                     <div class="product-item">
-                        <strong>${products.name || "منتج غير معروف"}</strong> - 
-                        <span>${products.price || "سعر غير متوفر"}$</span>
+                        <strong>${user.name || "منتج غير معروف"}</strong> - 
+                        <span>${user.price || "سعر غير متوفر"}$</span>
                     </div>
                 `).join("");
 
