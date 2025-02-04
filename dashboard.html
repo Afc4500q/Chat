@@ -107,7 +107,7 @@
         }
 
         function updateUI(user) {
-            elements.userName.textContent = user.user || "مستخدم غير معروف"; // تغيير `name` إلى `user`
+            elements.userName.textContent = user.user || "مستخدم غير معروف";
             elements.userEmail.textContent = user.email || "بريد غير متوفر";
             elements.totalOrders.textContent = user.totalOrders || 0;
             elements.successfulOrders.textContent = user.successfulOrders || 0;
@@ -117,7 +117,14 @@
             elements.productList.innerHTML = (user.products && Array.isArray(user.products)) 
                 ? user.products.map(product => `
                     <div class="product-item">
-                        <strong>${product.name || "منتج غير معروف"}</strong> - ${product.price ? `${product.price}$` : "سعر غير متوفر"}
+                        <strong>الاسم:</strong> ${product.name || "غير متوفر"} <br>
+                        <strong>المعرف:</strong> ${product.id || "غير متوفر"} <br>
+                        <strong>السعر:</strong> ${product.price ? `${product.price}$` : "غير متوفر"} <br>
+                        <strong>الولاية:</strong> ${product.state || "غير متوفر"} <br>
+                        <strong>المدينة:</strong> ${product.city || "غير متوفر"} <br>
+                        <strong>المنطقة:</strong> ${product.region || "غير متوفر"} <br>
+                        <strong>الحالة:</strong> ${product.status || "غير متوفر"} <br>
+                        <strong>النوع:</strong> ${product.type || "غير متوفر"} 
                     </div>
                 `).join("")
                 : `<div class="product-item">لا توجد منتجات</div>`;
