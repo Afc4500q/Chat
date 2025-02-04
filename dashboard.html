@@ -198,9 +198,12 @@
             function updateUI(data) {
                 const user = data[0];
                 elements.userName.textContent = user.name || "مستخدم غير معروف";
-                elements.userEmail.textContent = user.email || "بريد غير متوفر";
+                elements.userEmail.textContent = user.user || "بريد غير متوفر";
                 elements.totalOrders.textContent = user.totalOrders;
-                elements.successfulOrders.textContent = user.successfulOrders(item => item.status === 'completed').length;
+                elements.successfulOrders.textContent = user.successfulOrders;
+                elements.pendingOrders.textContent = user.pendingOrders;
+                elements.rejectedOrders.textContent = user.rejectedOrders;
+                
 
                 elements.productList.innerHTML = products.map(product => `
                     <div class="product-item">
