@@ -7,110 +7,51 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     <style>
-        :root {
-            --primary-color: #2A9D8F;
-            --secondary-color: #264653;
-            --accent-color: #E9C46A;
-            --text-color: #ffffff;
-        }
-
         body {
             font-family: 'Cairo', sans-serif;
             direction: rtl;
             background: linear-gradient(135deg, #264653 0%, #2A9D8F 100%);
-            color: var(--text-color);
+            color: white;
             min-height: 100vh;
             padding: 20px 0;
             margin: 0;
+            text-align: center;
         }
-
         .container {
             max-width: 800px;
-            margin: 0 auto;
+            margin: auto;
             padding: 20px;
         }
-
         .user-info {
             background: rgba(255, 255, 255, 0.1);
             padding: 20px;
             border-radius: 15px;
             margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
         }
-
-        .user-info i {
-            font-size: 32px;
-            color: var(--accent-color);
-        }
-
-        .user-controls {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-right: auto;
-        }
-
-        .toggle-request {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background 0.3s ease;
-        }
-
-        .toggle-request:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-
-        .status-indicator {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            display: inline-block;
-            background-color: red;
-        }
-
         .stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 15px;
             margin-bottom: 20px;
         }
-
         .stat-box {
             background: rgba(255, 255, 255, 0.1);
             padding: 20px;
             border-radius: 12px;
             text-align: center;
-            transition: transform 0.3s ease;
         }
-
-        .stat-box:hover {
-            transform: translateY(-5px);
-        }
-
-        .stat-box i {
-            font-size: 28px;
-            color: var(--accent-color);
-            margin-bottom: 10px;
-        }
-
         .products {
             background: rgba(255, 255, 255, 0.1);
             border-radius: 15px;
             padding: 20px;
         }
-
-        .product-item {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 15px;
+        .logout-btn {
+            background: red;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -118,46 +59,20 @@
 
     <div class="container">
         <div class="user-info">
-            <i class="material-icons-round">person</i>
-            <div>
-                <h2 id="userName">اسم المستخدم</h2>
-                <p id="userEmail">البريد الإلكتروني</p>
-            </div>
-            <div class="user-controls">
-                <button id="toggleRequestBtn" class="toggle-request">
-                    لا يوجد طلب <span class="status-indicator" id="requestStatus"></span>
-                </button>
-            </div>
+            <h2 id="userName">اسم المستخدم</h2>
+            <p id="userEmail">البريد الإلكتروني</p>
+            <button class="logout-btn" onclick="logoutUser()">تسجيل الخروج</button>
         </div>
 
         <div class="stats">
-            <div class="stat-box">
-                <i class="material-icons-round">assignment</i>
-                الطلبات
-                <span class="stat-value" id="totalOrders">0</span>
-            </div>
-
-            <div class="stat-box">
-                <i class="material-icons-round">check_circle</i>
-                الناجحة
-                <span class="stat-value" id="successfulOrders">0</span>
-            </div>
-
-            <div class="stat-box">
-                <i class="material-icons-round">pending</i>
-                المعلقة
-                <span class="stat-value" id="pendingOrders">0</span>
-            </div>
-
-            <div class="stat-box">
-                <i class="material-icons-round">cancel</i>
-                الملغاة
-                <span class="stat-value" id="canceledOrders">0</span>
-            </div>
+            <div class="stat-box">الطلبات: <span id="totalOrders">0</span></div>
+            <div class="stat-box">الناجحة: <span id="successfulOrders">0</span></div>
+            <div class="stat-box">المعلقة: <span id="pendingOrders">0</span></div>
+            <div class="stat-box">الملغاة: <span id="canceledOrders">0</span></div>
         </div>
 
         <div class="products">
-            <h3><i class="material-icons-round">inventory</i> المنتجات</h3>
+            <h3>المنتجات</h3>
             <div id="productList"></div>
         </div>
     </div>
@@ -165,8 +80,6 @@
     <script>
         document.addEventListener("DOMContentLoaded", async () => {
             const elements = {
-                toggleBtn: document.getElementById("toggleRequestBtn"),
-                statusIndicator: document.getElementById("requestStatus"),
                 userName: document.getElementById("userName"),
                 userEmail: document.getElementById("userEmail"),
                 totalOrders: document.getElementById("totalOrders"),
@@ -176,49 +89,45 @@
                 productList: document.getElementById("productList")
             };
 
-            try {
-                const response = await fetch("https://679353885eae7e5c4d8e46e3.mockapi.io/Yo");
-                if (!response.ok) throw new Error('فشل جلب البيانات');
-                const data = await response.json();
-
-                if (!data.length) {
-                    console.error("لم يتم العثور على بيانات");
-                    return;
-                }
-
-                // تحديث واجهة المستخدم
-                updateUI(data);
-
-                // إعداد الأحداث
-                elements.toggleBtn.addEventListener("click", () => toggleRequestStatus(data[0].id));
-
-            } catch (error) {
-                console.error("حدث خطأ أثناء جلب البيانات:", error);
-                elements.productList.innerHTML = `<div class="product-item">خطأ في تحميل البيانات</div>`;
+            const userId = localStorage.getItem("loggedInUserId");
+            if (!userId) {
+                alert("يرجى تسجيل الدخول");
+                window.location.href = "login.html";
+                return;
             }
 
-            function updateUI(data) {
-                const user = data[0];
+            try {
+                const response = await fetch(`https://679353885eae7e5c4d8e46e3.mockapi.io/Yo/${userId}`);
+                if (!response.ok) throw new Error('فشل جلب بيانات المستخدم');
+                
+                const user = await response.json();
+                updateUI(user);
+            } catch (error) {
+                console.error("حدث خطأ أثناء جلب البيانات:", error);
+            }
 
+            function updateUI(user) {
                 elements.userName.textContent = user.name || "مستخدم غير معروف";
                 elements.userEmail.textContent = user.user || "بريد غير متوفر";
                 elements.totalOrders.textContent = user.totalOrders || 0;
                 elements.successfulOrders.textContent = user.successfulOrders || 0;
                 elements.pendingOrders.textContent = user.pendingOrders || 0;
-                elements.canceledOrders.textContent = user.rejectedOrders || 0;
+                elements.canceledOrders.textContent = user.canceledOrders || 0;
 
-                if (user.products && Array.isArray(user.products)) {
-                    elements.productList.innerHTML = user.products.map(product => `
+                elements.productList.innerHTML = (user.products && Array.isArray(user.products)) 
+                    ? user.products.map(product => `
                         <div class="product-item">
-                            <strong>${product.name || "منتج غير معروف"}</strong>
-                            <span>${product.price ? `${product.price}$` : "سعر غير متوفر"}</span>
+                            <strong>${product.name || "منتج غير معروف"}</strong> - ${product.price ? `${product.price}$` : "سعر غير متوفر"}
                         </div>
-                    `).join("");
-                } else {
-                    elements.productList.innerHTML = `<div class="product-item">لا توجد منتجات متاحة</div>`;
-                }
+                    `).join("")
+                    : `<div class="product-item">لا توجد منتجات</div>`;
             }
         });
+
+        function logoutUser() {
+            localStorage.removeItem("loggedInUserId");
+            window.location.href = "login.html";
+        }
     </script>
 
 </body>
