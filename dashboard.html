@@ -86,7 +86,8 @@
             successfulOrders: document.getElementById("successfulOrders"),
             pendingOrders: document.getElementById("pendingOrders"),
             canceledOrders: document.getElementById("canceledOrders"),
-            productList: document.getElementById("productList")
+            productList: document.getElementById("productList"),
+            logoutButton: document.getElementById("logoutButton")
         };
 
         const userId = localStorage.getItem("loggedInUserId");
@@ -99,7 +100,7 @@
         try {
             const response = await fetch(`https://679353885eae7e5c4d8e46e3.mockapi.io/Yo/${userId}`);
             if (!response.ok) throw new Error('فشل جلب بيانات المستخدم');
-            
+
             const user = await response.json();
             updateUI(user);
         } catch (error) {
@@ -117,24 +118,37 @@
             elements.productList.innerHTML = (user.products && Array.isArray(user.products)) 
                 ? user.products.map(product => `
                     <div class="product-item">
-                        <strong>الاسم:</strong> ${product.name || "غير متوفر"} <br>
-                        <strong>المعرف:</strong> ${product.id || "غير متوفر"} <br>
-                        <strong>السعر:</strong> ${product.price ? `${product.price}$` : "غير متوفر"} <br>
-                        <strong>الولاية:</strong> ${product.state || "غير متوفر"} <br>
-                        <strong>المدينة:</strong> ${product.city || "غير متوفر"} <br>
-                        <strong>المنطقة:</strong> ${product.region || "غير متوفر"} <br>
-                        <strong>الحالة:</strong> ${product.status || "غير متوفر"} <br>
-                        <strong>النوع:</strong> ${product.type || "غير متوفر"} 
+                        <p><strong>الاسم:</strong> ${product.name || "غير متوفر"}</p>
+                        <p><strong>المعرف:</strong> ${product.id || "غير متوفر"}</p>
+                        <p><strong>السعر:</strong> ${product.price ? `${product.price}$` : "غير متوفر"}</p>
+                        <p><strong>الولاية:</strong> ${product.state || "غير متوفر"}</p>
+                        <p><strong>المدينة:</strong> ${product.city || "غير متوفر"}</p>
+                        <p><strong>المنطقة:</strong> ${product.region || "غير متوفر"}</p>
+                        <p><strong>الحالة:</strong> ${product.status || "غير متوفر"}</p>
+                        <p><strong>النوع:</strong> ${product.type || "غير متوفر"}</p>
                     </div>
-                `).join("")
+                `).join("<hr style='border: 1px solid rgba(255,255,255,0.3); margin: 10px 0;'>")
                 : `<div class="product-item">لا توجد منتجات</div>`;
         }
-    });
 
-    function logoutUser() {
-        localStorage.removeItem("loggedInUserId");
-        window.location.href = "login.html";
-    }
+        elements.logoutButton.addEventListener("click", async () => {
+            try {
+                const response = await fetch(`https://679353885eae7e5c4d8e46e3.mockapi.io/Yo/${userId}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ type_user: false })  // تسجيل الخروج
+                });
+
+                if (!response.ok) throw new Error('فشل تسجيل الخروج');
+                
+                localStorage.removeItem("loggedInUserId");
+                window.location.href = "login.html";
+
+            } catch (error) {
+                console.error("حدث خطأ أثناء تسجيل الخروج:", error);
+            }
+        });
+    });
 </script>
 
 </body>
