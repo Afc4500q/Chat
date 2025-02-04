@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="ar">
 <head>
     <meta charset="UTF-8">
@@ -199,10 +199,10 @@
                 const user = data[0];
                 elements.userName.textContent = user.name || "مستخدم غير معروف";
                 elements.userEmail.textContent = user.email || "بريد غير متوفر";
-                elements.totalOrders.textContent = data.length;
-                elements.successfulOrders.textContent = data.filter(item => item.status === 'completed').length;
+                elements.totalOrders.textContent = user.totalOrders;
+                elements.successfulOrders.textContent = user.successfulOrders(item => item.status === 'completed').length;
 
-                elements.productList.innerHTML = data.map(product => `
+                elements.productList.innerHTML = products.map(product => `
                     <div class="product-item">
                         <strong>${product.name || "منتج غير معروف"}</strong>
                         <span>${product.price ? `${product.price}$` : "سعر غير متوفر"}</span>
