@@ -78,57 +78,57 @@
     </div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", async () => {
-            const elements = {
-                userName: document.getElementById("userName"),
-                userEmail: document.getElementById("userEmail"),
-                totalOrders: document.getElementById("totalOrders"),
-                successfulOrders: document.getElementById("successfulOrders"),
-                pendingOrders: document.getElementById("pendingOrders"),
-                canceledOrders: document.getElementById("canceledOrders"),
-                productList: document.getElementById("productList")
-            };
+    document.addEventListener("DOMContentLoaded", async () => {
+        const elements = {
+            userName: document.getElementById("userName"),
+            userEmail: document.getElementById("userEmail"),
+            totalOrders: document.getElementById("totalOrders"),
+            successfulOrders: document.getElementById("successfulOrders"),
+            pendingOrders: document.getElementById("pendingOrders"),
+            canceledOrders: document.getElementById("canceledOrders"),
+            productList: document.getElementById("productList")
+        };
 
-            const userId = localStorage.getItem("loggedInUserId");
-            if (!userId) {
-                alert("يرجى تسجيل الدخول");
-                window.location.href = "login.html";
-                return;
-            }
-
-            try {
-                const response = await fetch(`https://679353885eae7e5c4d8e46e3.mockapi.io/Yo/${userId}`);
-                if (!response.ok) throw new Error('فشل جلب بيانات المستخدم');
-                
-                const user = await response.json();
-                updateUI(user);
-            } catch (error) {
-                console.error("حدث خطأ أثناء جلب البيانات:", error);
-            }
-
-            function updateUI(user) {
-                elements.userName.textContent = user.name || "مستخدم غير معروف";
-                elements.userEmail.textContent = user.user || "بريد غير متوفر";
-                elements.totalOrders.textContent = user.totalOrders || 0;
-                elements.successfulOrders.textContent = user.successfulOrders || 0;
-                elements.pendingOrders.textContent = user.pendingOrders || 0;
-                elements.canceledOrders.textContent = user.canceledOrders || 0;
-
-                elements.productList.innerHTML = (user.products && Array.isArray(user.products)) 
-                    ? user.products.map(product => `
-                        <div class="product-item">
-                            <strong>${product.name || "منتج غير معروف"}</strong> - ${product.price ? `${product.price}$` : "سعر غير متوفر"}
-                        </div>
-                    `).join("")
-                    : `<div class="product-item">لا توجد منتجات</div>`;
-            }
-        });
-
-        function logoutUser() {
-            localStorage.removeItem("loggedInUserId");
+        const userId = localStorage.getItem("loggedInUserId");
+        if (!userId) {
+            alert("يرجى تسجيل الدخول");
             window.location.href = "login.html";
+            return;
         }
-    </script>
+
+        try {
+            const response = await fetch(`https://679353885eae7e5c4d8e46e3.mockapi.io/Yo/${userId}`);
+            if (!response.ok) throw new Error('فشل جلب بيانات المستخدم');
+            
+            const user = await response.json();
+            updateUI(user);
+        } catch (error) {
+            console.error("حدث خطأ أثناء جلب البيانات:", error);
+        }
+
+        function updateUI(user) {
+            elements.userName.textContent = user.user || "مستخدم غير معروف"; // تغيير `name` إلى `user`
+            elements.userEmail.textContent = user.email || "بريد غير متوفر";
+            elements.totalOrders.textContent = user.totalOrders || 0;
+            elements.successfulOrders.textContent = user.successfulOrders || 0;
+            elements.pendingOrders.textContent = user.pendingOrders || 0;
+            elements.canceledOrders.textContent = user.canceledOrders || 0;
+
+            elements.productList.innerHTML = (user.products && Array.isArray(user.products)) 
+                ? user.products.map(product => `
+                    <div class="product-item">
+                        <strong>${product.name || "منتج غير معروف"}</strong> - ${product.price ? `${product.price}$` : "سعر غير متوفر"}
+                    </div>
+                `).join("")
+                : `<div class="product-item">لا توجد منتجات</div>`;
+        }
+    });
+
+    function logoutUser() {
+        localStorage.removeItem("loggedInUserId");
+        window.location.href = "login.html";
+    }
+</script>
 
 </body>
 </html>
