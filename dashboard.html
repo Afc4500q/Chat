@@ -7,7 +7,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     <style>
-        /* CSS المحدث */
         :root {
             --primary-color: #2A9D8F;
             --secondary-color: #264653;
@@ -41,6 +40,7 @@
             gap: 20px;
             backdrop-filter: blur(5px);
             border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
         }
 
         .user-info i {
@@ -49,25 +49,57 @@
             padding: 15px;
             background: rgba(0, 0, 0, 0.2);
             border-radius: 50%;
+            transition: transform 0.3s ease;
         }
 
         .user-info h2 {
             margin: 0 0 8px 0;
             font-size: 1.6rem;
-            font-weight: bold; /* إضافة bold للاسم */
         }
 
         .user-info p {
             margin: 0;
+            opacity: 0.9;
             font-size: 0.95rem;
-            font-weight: bold; /* إضافة bold للرصيد */
             display: flex;
             align-items: center;
             gap: 8px;
         }
 
-        /* بقية الـ CSS كما هي */
-        /* ... */
+        #userBalance::before {
+            content: "account_balance_wallet";
+            font-family: 'Material Icons Round';
+            font-size: 18px;
+            margin-left: 8px;
+        }
+
+        .toggle-request {
+            background: var(--accent-color);
+            padding: 15px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            border: none;
+            color: var(--secondary-color);
+            margin-top: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            font-weight: 600;
+        }
+
+        .toggle-request:hover {
+            background: #f4a261;
+            transform: scale(1.02);
+        }
+
+        hr {
+            border: 0.5px solid rgba(255, 255, 255, 0.1);
+            margin: 15px 0;
+        }
     </style>
 </head>
 <body>
@@ -77,44 +109,67 @@
             <i class="material-icons-round">person</i>
             <div>
                 <h2 id="userName">اسم المستخدم</h2>
-                <!-- تغيير البريد الإلكتروني إلى الرصيد -->
-                <p id="userBalance">الرصيد: 0 دينار</p>
+                <p id="userBalance">الرصيد: 0 IQD</p>
             </div>
         </div>
-
-        <!-- بقية العناصر كما هي -->
-        <!-- ... -->
 
         <button id="requestButton" class="toggle-request">
             لا يوجد طلب
         </button>
 
-        <!-- ... -->
+        <div class="products">
+            <h3><i class="material-icons-round">inventory</i> المنتجات</h3>
+            <div id="productList"></div>
+        </div>
     </div>
 
     <script>
         document.addEventListener("DOMContentLoaded", async () => {
             const elements = {
                 userName: document.getElementById("userName"),
-                userBalance: document.getElementById("userBalance"), // تغيير الـ ID
-                // ... بقية العناصر
+                userBalance: document.getElementById("userBalance"),
+                productList: document.getElementById("productList"),
+                requestButton: document.getElementById("requestButton")
             };
 
-            // ... الكود السابق
+            const userId = localStorage.getItem("loggedInUserId");
+            if (!userId) {
+                alert("يرجى تسجيل الدخول");
+                window.location.href = "login.html";
+                return;
+            }
+
+            try {
+                const response = await fetch(`https://679353885eae7e5c4d8e46e3.mockapi.io/Yo/${userId}`);
+                if (!response.ok) throw new Error('فشل جلب بيانات المستخدم');
+
+                const user = await response.json();
+                updateUI(user);
+            } catch (error) {
+                console.error("حدث خطأ أثناء جلب البيانات:", error);
+            }
 
             function updateUI(user) {
                 elements.userName.textContent = user.user || "مستخدم غير معروف";
-                elements.userBalance.textContent = `الرصيد: ${user.balance || 0} دينار`; // تحديث الرصيد
-                // ... بقية التحديثات
+                elements.userBalance.textContent = `الرصيد: ${user.balance || 0} IQD`;
+
+                elements.productList.innerHTML = (user.products && Array.isArray(user.products)) 
+                    ? user.products.map(product => `
+                        <div class="product-item">
+                            <p><strong>الاسم:</strong> ${product.name}</p>
+                            <p><strong>المعرف:</strong> ${product.id}</p>
+                            <p><strong>السعر:</strong> ${product.price} IQD</p>
+                        </div>
+                        <hr>
+                    `).join("")
+                    : `<div class="product-item">لا توجد منتجات</div>`;
             }
 
-            // تعديل الحدث لفتح صفحة جديدة
             elements.requestButton.addEventListener("click", () => {
-                window.location.href = 'الرابط-الجديد.html'; // استبدل بالرابط المطلوب
+                window.location.href = "newpage.html"; // استبدل "newpage.html" برابط الصفحة المطلوبة
             });
-
-            // إزالة الدوال المتعلقة بـ type_user
         });
     </script>
+
 </body>
 </html>
