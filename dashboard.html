@@ -257,7 +257,8 @@ hr {
     </div>
 
     <script >
-document.addEventListener("DOMContentLoaded", async () => {
+
+        document.addEventListener("DOMContentLoaded", async () => {
     const elements = {
         userName: document.getElementById("userName"),
         userBalance: document.getElementById("userBalance"),
@@ -265,7 +266,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         totalOrders: document.getElementById("totalOrders"),
         successfulOrders: document.getElementById("successfulOrders"),
         pendingOrders: document.getElementById("pendingOrders"),
-        canceledOrders: document.getElementById("rejectedOrders"),
+        canceledOrders: document.getElementById("canceledOrders"),
         productList: document.getElementById("productList"),
         requestButton: document.getElementById("requestButton")
     };
@@ -294,7 +295,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         elements.totalOrders.textContent = user.totalOrders || 0;
         elements.successfulOrders.textContent = user.successfulOrders || 0;
         elements.pendingOrders.textContent = user.pendingOrders || 0;
-        elements.canceledOrders.textContent = user.canceledOrders || 0;
+        elements.canceledOrders.textContent = user.rejectedOrders || 0;
 
         elements.productList.innerHTML = (user.products && Array.isArray(user.products))
             ? user.products.map(product => `
