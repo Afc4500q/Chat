@@ -289,7 +289,7 @@ hr {
     function updateUI(user) {
         elements.userName.textContent = user.user || "مستخدم غير معروف";
         elements.userBalance.textContent = user.balance || "0";
-        elements.userEmail.textContent = user.email || "بريد غير متوفر";
+        elements.userEmail.textContent = user.id || "بريد غير متوفر";
         elements.totalOrders.textContent = user.totalOrders || 0;
         elements.successfulOrders.textContent = user.successfulOrders || 0;
         elements.pendingOrders.textContent = user.pendingOrders || 0;
