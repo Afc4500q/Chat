@@ -359,7 +359,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     async function handleDeleteProduct(productId) {
         if (confirm('هل أنت متأكد من رغبتك في حذف هذا المنتج؟')) {
             try {
-                const response = await fetch(`https://679353885eae7e5c4d8e46e3.mockapi.io/Yo/${userId}/products/${productId}`, {
+                const response = await fetch(`https://679353885eae7e5c4d8e46e3.mockapi.io/Products/${productId}`, {
                     method: 'DELETE'
                 });
 
