@@ -302,42 +302,38 @@ hr {
     }
 
     const API_URL = `https://679353885eae7e5c4d8e46e3.mockapi.io/Yo/${userId}`;
+    let userData = null;
 
-    try {
-        const response = await fetch(API_URL);
-        if (!response.ok) throw new Error('فشل جلب بيانات المستخدم');
-        const user = await response.json();
-        updateUI(user);
-    } catch (error) {
-        console.error("حدث خطأ أثناء جلب البيانات:", error);
+    async function loadUserData() {
+        try {
+            const response = await fetch(API_URL);
+            if (!response.ok) throw new Error('فشل جلب بيانات المستخدم');
+            userData = await response.json();
+            updateUI();
+        } catch (error) {
+            console.error("حدث خطأ أثناء جلب البيانات:", error);
+        }
     }
 
-    function updateUI(user) {
-        elements.userName.textContent = user.user || "مستخدم غير معروف";
-        elements.userBalance.textContent = `رصيد: ${user.balance || 0} $`;
-        elements.userEmail.innerHTML = `<span class="material-icons-round">email</span> ${user.email || "بريد غير متوفر"}`;
-        elements.totalOrders.textContent = user.totalOrders || 0;
-        elements.successfulOrders.textContent = user.successfulOrders || 0;
-        elements.pendingOrders.textContent = user.pendingOrders || 0;
-        elements.canceledOrders.textContent = user.rejectedOrders || 0;
+    function updateUI() {
+        elements.userName.textContent = userData.user || "مستخدم غير معروف";
+        elements.userBalance.textContent = `رصيد: ${userData.balance || 0} $`;
+        elements.userEmail.innerHTML = `<span class="material-icons-round">email</span> ${userData.email || "بريد غير متوفر"}`;
+        elements.totalOrders.textContent = userData.totalOrders || 0;
+        elements.successfulOrders.textContent = userData.successfulOrders || 0;
+        elements.pendingOrders.textContent = userData.pendingOrders || 0;
+        elements.canceledOrders.textContent = userData.rejectedOrders || 0;
 
-        renderProducts(user.products);
+        renderProducts();
         setupEventListeners();
-        updateRequestButton(user.type_user);
+        updateRequestButton(userData.type_user);
     }
 
-    function renderProducts(products) {
-        elements.productList.innerHTML = (products && Array.isArray(products)) 
-            ? products.map(product => `
-                <div class="product-item" data-product-id="${product.id}">
-                    <p><strong>الاسم:</strong> ${product.name}</p>
-                    <p><strong>المعرف:</strong> ${product.id}</p>
-                    <p><strong>السعر:</strong> ${product.price}$</p>
-                    <p><strong>الولاية:</strong> ${product.state}</p>
-                    <p><strong>المدينة:</strong> ${product.city}</p>
-                    <p><strong>المنطقة:</strong> ${product.region}</p>
-                    <p><strong>الحالة:</strong> ${product.status}</p>
-                    <p><strong>النوع:</strong> ${product.type}</p>
+    function renderProducts() {
+        elements.productList.innerHTML = userData.products?.length > 0 
+            ? userData.products.map((product, index) => `
+                <div class="product-item" data-product-id="${product.id}" data-index="${index}">
+                    ${generateProductFields(product, index)}
                     <div class="product-actions">
                         <button class="edit-btn">تعديل</button>
                         <button class="delete-btn">حذف</button>
@@ -348,59 +344,102 @@ hr {
             : `<div class="product-item">لا توجد منتجات</div>`;
     }
 
+    function generateProductFields(product, index) {
+        return `
+            <p><strong>الاسم:</strong> <input type="text" value="${product.name}" id="name-${index}"></p>
+            <p><strong>السعر:</strong> <input type="number" value="${product.price}" id="price-${index}"></p>
+            <p><strong>الولاية:</strong> <input type="text" value="${product.state}" id="state-${index}"></p>
+            <p><strong>المدينة:</strong> <input type="text" value="${product.city}" id="city-${index}"></p>
+            <p><strong>المنطقة:</strong> <input type="text" value="${product.area}" id="area-${index}"></p>
+            <p><strong>الحالة:</strong>
+                <select id="status-${index}">
+                    <option value="قيد الشحن" ${product.status === "قيد الشحن" ? "selected" : ""}>قيد الشحن</option>
+                    <option value="قيد المراجعة" ${product.status === "قيد المراجعة" ? "selected" : ""}>قيد المراجعة</option>
+                    <option value="تم التسليم" ${product.status === "تم التسليم" ? "selected" : ""}>تم التسليم</option>
+                    <option value="تم الرفض" ${product.status === "تم الرفض" ? "selected" : ""}>تم الرفض</option>
+                </select>
+            </p>
+            <p><strong>النوع:</strong> <input type="text" value="${product.type}" id="type-${index}"></p>
+        `;
+    }
+
     function setupEventListeners() {
-        document.querySelectorAll('.delete-btn').forEach(button => {
-            button.addEventListener('click', async function() {
-                const productId = this.closest('.product-item').dataset.productId;
-                await handleDeleteProduct(productId);
+        // أحداث الحذف
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const index = e.target.closest('.product-item').dataset.index;
+                await deleteProduct(index);
             });
         });
 
-        document.querySelectorAll('.edit-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                const productId = this.closest('.product-item').dataset.productId;
-                handleEditProduct(productId);
+        // أحداث التعديل
+        document.querySelectorAll('.edit-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const index = e.target.closest('.product-item').dataset.index;
+                await updateProduct(index);
             });
         });
     }
 
-    async function handleDeleteProduct(productId) {
-        if (!confirm('هل أنت متأكد من رغبتك في حذف هذا المنتج؟')) return;
+    async function deleteProduct(index) {
+        if (!confirm("هل أنت متأكد من حذف هذا المنتج؟")) return;
 
+        userData.products.splice(index, 1);
+        
         try {
-            // جلب بيانات المستخدم الحالية
-            const userResponse = await fetch(API_URL);
-            const user = await userResponse.json();
-
-            // تصفية المنتجات المتبقية
-            const updatedProducts = user.products.filter(p => p.id !== productId);
-
-            // تحديث بيانات المستخدم
-            const updateResponse = await fetch(API_URL, {
+            const response = await fetch(API_URL, {
                 method: 'PUT',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({...user, products: updatedProducts})
+                body: JSON.stringify(userData)
             });
 
-            if (updateResponse.ok) {
-                // إعادة تحميل البيانات
-                const updatedUser = await updateResponse.json();
-                updateUI(updatedUser);
+            if (response.ok) {
+                await loadUserData();
                 alert('تم الحذف بنجاح');
             } else {
-                throw new Error('فشل في تحديث البيانات');
+                throw new Error('فشل في الحذف');
             }
         } catch (error) {
-            console.error('Error:', error);
+            console.error(error);
             alert('حدث خطأ أثناء الحذف');
         }
     }
 
-    function handleEditProduct(productId) {
-        // يمكنك تغيير الرابط حسب صفحة التعديل الخاصة بك
-        window.location.href = `edit-product.html?id=${productId}&userId=${userId}`;
+    async function updateProduct(index) {
+        const updatedProduct = {
+            ...userData.products[index],
+            name: document.getElementById(`name-${index}`).value,
+            price: parseFloat(document.getElementById(`price-${index}`).value),
+            state: document.getElementById(`state-${index}`).value,
+            city: document.getElementById(`city-${index}`).value,
+            area: document.getElementById(`area-${index}`).value,
+            status: document.getElementById(`status-${index}`).value,
+            type: document.getElementById(`type-${index}`).value
+        };
+
+        userData.products[index] = updatedProduct;
+
+        try {
+            const response = await fetch(API_URL, {
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(userData)
+            });
+
+            if (response.ok) {
+                alert('تم التحديث بنجاح');
+                await loadUserData();
+            } else {
+                throw new Error('فشل في التحديث');
+            }
+        } catch (error) {
+            console.error(error);
+            alert('حدث خطأ أثناء التحديث');
+        }
     }
 
+    // التهيئة الأولية
+    await loadUserData();
     elements.requestButton.addEventListener("click", () => {
         window.location.href = "new-request.html";
     });
