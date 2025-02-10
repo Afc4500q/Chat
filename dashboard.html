@@ -320,68 +320,39 @@ document.addEventListener("DOMContentLoaded", async () => {
         elements.pendingOrders.textContent = user.pendingOrders || 0;
         elements.canceledOrders.textContent = user.rejectedOrders || 0;
 
-        elements.productList.innerHTML = (user.products && Array.isArray(user.products))
-            ? user.products.map(product => `
-                <div class="product-item" data-product-id="${product.id}">
-                    <p><strong>الاسم:</strong> ${product.name}</p>
-                    <p><strong>المعرف:</strong> ${product.id}</p>
-                    <p><strong>السعر:</strong> ${product.price}$</p>
-                    <p><strong>الولاية:</strong> ${product.state}</p>
-                    <p><strong>المدينة:</strong> ${product.city}</p>
-                    <p><strong>المنطقة:</strong> ${product.region}</p>
-                    <p><strong>الحالة:</strong> ${product.status}</p>
-                    <p><strong>النوع:</strong> ${product.type}</p>
-                    <div class="product-actions">
-                        <button class="edit-btn">تعديل</button>
-                        <button class="delete-btn">حذف</button>
-                    </div>
-                </div>
-                <hr>
-            `).join("")
-            : `<div class="product-item">لا توجد منتجات</div>`;
+        
+‏elements.productList.innerHTML = (user.products && Array.isArray(user.products)) ? user.products.map(product => `
+‏  <div class="product-item" data-product-id="${product.id}">
+‏    <p><strong>الاسم:</strong> <input type="text" value="${product.name}" data-product-id="${product.id}"></p>
+‏    <p><strong>السعر:</strong> <input type="number" value="${product.price}" data-product-id="${product.id}"></p>
+‏    <button class="save-btn" data-product-id="${product.id}">حفظ</button>
+‏  </div>
+‏`).join("") : `<div class="product-item">لا توجد منتجات</div>`;
 
-        // إضافة مستمعي الأحداث للأزرار الجديدة
-        document.querySelectorAll('.delete-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                const productId = this.closest('.product-item').dataset.productId;
-                handleDeleteProduct(productId);
-            });
-        });
-
-        document.querySelectorAll('.edit-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                const productId = this.closest('.product-item').dataset.productId;
-                handleEditProduct(productId);
-            });
-        });
-    }
-
-    async function handleDeleteProduct(productId) {
-        if (confirm('هل أنت متأكد من رغبتك في حذف هذا المنتج؟')) {
-            try {
-                const response = await fetch(`https://679353885eae7e5c4d8e46e3.mockapi.io/Products/${productId}`, {
-                    method: 'DELETE'
-                });
-
-                if (!response.ok) throw new Error('فشل حذف المنتج');
-
-                alert('تم حذف المنتج بنجاح');
-                location.reload();
-            } catch (error) {
-                console.error('خطأ أثناء حذف المنتج:', error);
-                alert('حدث خطأ أثناء الحذف');
-            }
-        }
-    }
-
-    function handleEditProduct(productId) {
-        window.location.href = `edit_product.html?productId=${productId}`;
-    }
-
-    elements.requestButton.addEventListener("click", () => {
-        window.location.href = "your_other_page.html";
-    });
+// إضافة مستمعي الأحداث للأزرار الجديدة
+‏document.querySelectorAll('.save-btn').forEach(button => {
+‏  button.addEventListener('click', function() {
+‏    const productId = this.dataset.productId;
+‏    const productName = document.querySelector(`input[data-product-id="${productId}"]`).value;
+‏    const productPrice = document.querySelector(`input[data-product-id="${productId}"][type="number"]`).value;
+‏    handleUpdateProduct(productId, productName, productPrice);
+  });
 });
+
+‏async function handleUpdateProduct(productId, productName, productPrice) {
+‏  try {
+‏    const response = await fetch(`https://679353885eae7e5c4d8e46e3.mockapi.io/Products/${productId}`, {
+‏      method: 'PUT',
+‏      headers: { 'Content-Type': 'application/json' },
+‏      body: JSON.stringify({ name: productName, price: productPrice })
+    });
+‏    if (!response.ok) throw new Error('فشل تحديث المنتج');
+‏    alert('تم تحديث المنتج بنجاح');
+‏  } catch (error) {
+‏    console.error('خطأ أثناء تحديث المنتج:', error);
+‏    alert('حدث خطأ أثناء التحديث');
+  }
+}
 </script>
 </body>
 </html>
