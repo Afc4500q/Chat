@@ -16,6 +16,12 @@
     --background: #0F1720;
 }
 
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
 body {
     font-family: 'Cairo', sans-serif;
     background: var(--background);
@@ -28,7 +34,8 @@ body {
 .container {
     max-width: 1200px;
     margin: 0 auto;
-    display: grid;
+    display: flex;
+    flex-direction: column;
     gap: 2rem;
 }
 
@@ -50,6 +57,7 @@ body {
     border-radius: 50%;
     font-size: 2.5rem;
     color: var(--primary);
+    flex-shrink: 0;
 }
 
 .user-info h2 {
@@ -62,16 +70,15 @@ body {
     display: flex;
     align-items: center;
     gap: 0.8rem;
+    margin: 0.5rem 0;
 }
 
 /* تنسيقات الإحصائيات */
 .stats {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr); /* عمودين في كل سطر */
+    display: flex;
+    flex-wrap: wrap;
     gap: 1.5rem;
 }
-
-
 
 .stat-box {
     background: var(--secondary);
@@ -80,10 +87,8 @@ body {
     padding: 1.5rem;
     text-align: center;
     transition: transform 0.2s ease;
-    display: flex;
-    flex-direction: column; /* ترتيب العناصر عمودياً */
-    align-items: center; /* توسيط العناصر أفقياً */
-    justify-content: center; /* توسيط العناصر عمودياً */
+    flex: 1;
+    min-width: 250px;
 }
 
 .stat-box:hover {
@@ -93,13 +98,15 @@ body {
 .stat-box i {
     font-size: 2.5rem;
     color: var(--accent);
-    margin-bottom: 0.5rem; /* تقليل الهامش السفلي */
+    margin-bottom: 1rem;
+    display: block;
 }
 
 .stat-value {
     font-size: 2rem;
     font-weight: 700;
     color: var(--text);
+    margin: 0.5rem 0;
 }
 
 /* تنسيقات المنتجات */
@@ -108,6 +115,9 @@ body {
     border-radius: 1rem;
     padding: 2rem;
     border: 1px solid var(--border);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
 }
 
 .products h3 {
@@ -116,6 +126,7 @@ body {
     display: flex;
     align-items: center;
     gap: 1rem;
+    width: 100%;
 }
 
 .product-item {
@@ -123,8 +134,9 @@ body {
     border-left: 4px solid var(--primary);
     border-radius: 0.5rem;
     padding: 1.5rem;
-    margin-bottom: 1rem;
     transition: all 0.2s ease;
+    flex: 1;
+    min-width: 300px;
 }
 
 .product-item:hover {
@@ -146,11 +158,27 @@ body {
     font-size: 1.1rem;
     font-weight: 600;
     transition: all 0.2s ease;
+    cursor: pointer;
+    color: white;
 }
 
 .toggle-request:hover {
     transform: scale(1.02);
     box-shadow: 0 4px 12px rgba(42, 157, 143, 0.3);
+}
+
+.product-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.edit-btn, .delete-btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    cursor: pointer;
 }
 
 .edit-btn {
@@ -172,12 +200,16 @@ body {
         text-align: center;
     }
     
-    .stats {
-        grid-template-columns: 1fr;
+    .stats, .products {
+        flex-direction: column;
     }
     
-    .product-item {
-        padding: 1rem;
+    .stat-box, .product-item {
+        min-width: 100%;
+    }
+    
+    .product-item:hover {
+        transform: translateX(5px);
     }
 }
 
@@ -190,7 +222,6 @@ body {
 .product-item {
     animation: fadeIn 0.5s ease forwards;
 }
-
 </style>
 </head>
 <body>
