@@ -296,6 +296,7 @@ body {
     .stat-box {
         min-height: auto;
         padding: 20px;
+        width: 50%;
     }
     
     .stat-value {
@@ -406,43 +407,63 @@ body {
         return;
     }
 
-    const API_URL = `https://673a394a339a4ce445179ae7.mockapi.io/User/${userId}`;
+    const API_BASE = "https://673a394a339a4ce445179ae7.mockapi.io/User";
+    const API_URL = `${API_BASE}/${userId}`;
     let userData = null;
 
-    // تحميل البيانات الأولية
     async function loadUserData() {
         try {
             const response = await fetch(API_URL);
-            if (!response.ok) throw new Error('فشل جلب بيانات المستخدم');
-            userData = await response.json();
-            userData.products = userData.products?.map(p => ({ ...p, isEditing: false })) || [];
+            if (!response.ok) throw new Error(`خطأ في الخادم: ${response.status}`);
+            
+            const data = await response.json();
+            
+            // التحقق من هيكل البيانات
+            if (!data.name || typeof data.balance === 'undefined') {
+                throw new Error('هيكل البيانات غير متوافق مع التطبيق');
+            }
+            
+            userData = {
+                ...data,
+                products: data.products?.map(p => ({
+                    id: p.id,
+                    name: p.name,
+                    price: p.price,
+                    state: p.state,
+                    city: p.city,
+                    area: p.area || p.region,
+                    type: p.type,
+                    status: p.status || 'قيد المراجعة',
+                    isEditing: false
+                })) || []
+            };
+            
             updateUI();
         } catch (error) {
-            showError(error.message);
+            showError(`فشل التحميل: ${error.message}`);
+            console.error("تفاصيل الخطأ:", error);
         }
     }
 
-    // تحديث الواجهة
     function updateUI() {
-        elements.userName.textContent = userData.user || "مستخدم غير معروف";
-        elements.userBalance.textContent = `رصيد: ${userData.balance || 0} $`;
+        elements.userName.textContent = userData.name || "مستخدم غير معروف";
+        elements.userBalance.textContent = `رصيد: ${userData.balance} $`;
         elements.userEmail.innerHTML = `<span class="material-icons-round">email</span> ${userData.email || "بريد غير متوفر"}`;
         
         elements.totalOrders.textContent = userData.totalOrders || 0;
         elements.successfulOrders.textContent = userData.successfulOrders || 0;
         elements.pendingOrders.textContent = userData.pendingOrders || 0;
-        elements.canceledOrders.textContent = userData.rejectedOrders || 0;
+        elements.canceledOrders.textContent = userData.canceledOrders || 0;
 
         renderProducts();
         setupEventListeners();
-        updateRequestButton(userData.type_user);
+        updateRequestButton(userData.userType);
     }
 
-    // عرض المنتجات
     function renderProducts() {
         elements.productList.innerHTML = userData.products.length > 0 
             ? userData.products.map((product, index) => `
-                <div class="product-item" data-index="${index}">
+                <div class="product-item" data-index="${index}" data-product-id="${product.id}">
                     <div class="product-header">
                         <span class="product-id">#${product.id}</span>
                         <span class="product-status">${product.status}</span>
@@ -457,7 +478,6 @@ body {
             : `<div class="no-products">لا توجد منتجات متاحة</div>`;
     }
 
-    // الحقول الثابتة
     function getStaticFields(product) {
         return `
             <div class="product-details">
@@ -469,7 +489,6 @@ body {
         `;
     }
 
-    // الحقول القابلة للتعديل
     function getEditableFields(product, index) {
         return `
             <div class="product-form">
@@ -501,7 +520,6 @@ body {
         `;
     }
 
-    // إعداد مستمعي الأحداث
     function setupEventListeners() {
         document.querySelectorAll('.edit-btn').forEach((btn, index) => {
             btn.addEventListener('click', async () => {
@@ -519,7 +537,6 @@ body {
         });
     }
 
-    // تفعيل وضع التعديل
     function enterEditMode(index) {
         userData.products[index].isEditing = true;
         updateUI();
@@ -529,39 +546,34 @@ body {
         }, 100);
     }
 
-    // معالجة الحفظ
     async function handleSave(index) {
         if (!validateInputs(index)) return;
 
-        userData.products[index] = {
-            ...userData.products[index],
+        const productId = userData.products[index].id;
+        const updatedProduct = {
             name: document.getElementById(`name-${index}`).value,
             price: parseFloat(document.getElementById(`price-${index}`).value),
             state: document.getElementById(`state-${index}`).value,
             city: document.getElementById(`city-${index}`).value,
             area: document.getElementById(`area-${index}`).value,
-            type: document.getElementById(`type-${index}`).value,
-            isEditing: false
+            type: document.getElementById(`type-${index}`).value
         };
 
         try {
-            const response = await fetch(API_URL, {
+            const response = await fetch(`${API_BASE}/${userId}/products/${productId}`, {
                 method: 'PUT',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(userData)
+                body: JSON.stringify(updatedProduct)
             });
 
             if (!response.ok) throw new Error('فشل في الحفظ');
             await loadUserData();
-            showSuccess('تم حفظ التغييرات بنجاح');
+            showSuccess('تم تحديث المنتج بنجاح');
         } catch (error) {
             showError(error.message);
-            userData.products[index].isEditing = true;
-            updateUI();
         }
     }
 
-    // التحقق من صحة المدخلات
     function validateInputs(index) {
         let isValid = true;
         const requiredFields = [
@@ -583,17 +595,14 @@ body {
         return isValid;
     }
 
-    // معالجة الحذف
     async function handleDelete(index) {
         if (!confirm('هل أنت متأكد من حذف هذا المنتج؟')) return;
 
+        const productId = userData.products[index].id;
+        
         try {
-            userData.products.splice(index, 1);
-            
-            const response = await fetch(API_URL, {
-                method: 'PUT',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(userData)
+            const response = await fetch(`${API_BASE}/${userId}/products/${productId}`, {
+                method: 'DELETE'
             });
 
             if (!response.ok) throw new Error('فشل في الحذف');
@@ -601,17 +610,23 @@ body {
             showSuccess('تم حذف المنتج بنجاح');
         } catch (error) {
             showError(error.message);
-            await loadUserData();
         }
     }
 
-    // إدارة النتائج
     function showSuccess(message) {
-        alert(message);
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert success';
+        alertDiv.textContent = message;
+        document.body.prepend(alertDiv);
+        setTimeout(() => alertDiv.remove(), 3000);
     }
 
     function showError(message) {
-        alert(`خطأ: ${message}`);
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert error';
+        alertDiv.textContent = message;
+        document.body.prepend(alertDiv);
+        setTimeout(() => alertDiv.remove(), 5000);
     }
 
     // التهيئة الأولية
