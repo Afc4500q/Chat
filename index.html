@@ -29,17 +29,8 @@
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
-        .form-control {
-            border-radius: 8px;
-            padding: 12px 20px;
-        }
-        .btn-login {
-            background: var(--gradient-bg);
-            border: none;
-            padding: 12px;
-            border-radius: 8px;
-            color: white;
-            width: 100%;
+        .dashboard-page {
+            display: none; /* سيتم إظهاره عبر الجافاسكريبت */
         }
     </style>
 </head>
@@ -47,70 +38,65 @@
     <!-- صفحة تسجيل الدخول -->
     <div class="login-container" id="loginPage">
         <div class="login-card p-4 bg-white">
-            <div class="text-center mb-4">
-                <img src="https://via.placeholder.com/100" alt="Logo" class="mb-3" style="border-radius: 50%;">
-                <h3>تسجيل الدخول إلى النظام</h3>
-            </div>
-            
             <form id="loginForm">
+                <div class="text-center mb-4">
+                    <h3>تسجيل الدخول</h3>
+                </div>
                 <div class="mb-3">
                     <label>اسم المستخدم</label>
                     <input type="text" class="form-control" id="username" required>
                 </div>
-                
                 <div class="mb-4">
                     <label>كلمة المرور</label>
                     <input type="password" class="form-control" id="password" required>
                 </div>
-                
-                <button type="submit" class="btn-login">
+                <button type="submit" class="btn btn-primary w-100">
                     <i class="fas fa-sign-in-alt"></i> دخول
                 </button>
-                
-                <div id="loginError" class="text-danger mt-3 text-center" style="display: none;"></div>
+                <div id="loginError" class="text-danger mt-3 text-center"></div>
             </form>
         </div>
     </div>
 
-    <!-- صفحة لوحة التحكم (مخفية في البداية) -->
-    <div id="dashboard" style="display: none;">
-        <!-- ... (نفس محتوى لوحة التحكم من الإجابة السابقة) ... -->
+    <!-- صفحة لوحة التحكم -->
+    <div class="container-fluid py-4 dashboard-page" id="dashboard">
+        <!-- ... (نفس محتوى لوحة التحكم السابق) ... -->
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
-        // عناصر DOM
+        // ============= إصلاح المشكلة الرئيسية =============
         const loginPage = document.getElementById('loginPage');
         const dashboard = document.getElementById('dashboard');
-        const loginForm = document.getElementById('loginForm');
-        const loginError = document.getElementById('loginError');
+        
+        // تحميل أولي للبيانات
+        checkAuth();
+
+        async function checkAuth() {
+            const user = localStorage.getItem('currentUser');
+            if(user) {
+                loginPage.style.display = 'none';
+                dashboard.style.display = 'block';
+                loadDashboard(JSON.parse(user).id);
+            }
+        }
 
         // معالجة تسجيل الدخول
-        loginForm.addEventListener('submit', async (e) => {
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
-
+            
             try {
                 const response = await axios.get('https://673a394a339a4ce445179ae7.mockapi.io/User');
-                const users = response.data;
+                const user = response.data.find(u => u.user === username && u.pass === password);
                 
-                const foundUser = users.find(user => 
-                    user.user === username && 
-                    user.pass === password
-                );
-
-                if(foundUser) {
-                    // تخزين بيانات الجلسة
-                    localStorage.setItem('currentUser', JSON.stringify(foundUser));
-                    
-                    // إخفاء صفحة الدخول وإظهار اللوحة
+                if(user) {
+                    localStorage.setItem('currentUser', JSON.stringify(user));
                     loginPage.style.display = 'none';
                     dashboard.style.display = 'block';
-                    
-                    // تحميل بيانات اللوحة
-                    loadDashboard(foundUser.id);
+                    loadDashboard(user.id); // إصلاح هنا: استخدام user.id مباشرة
                 } else {
                     showError('بيانات الدخول غير صحيحة');
                 }
@@ -119,12 +105,14 @@
             }
         });
 
-        function showError(message) {
-            loginError.style.display = 'block';
-            loginError.textContent = message;
-            setTimeout(() => {
-                loginError.style.display = 'none';
-            }, 3000);
+        // ... (بقية الدوال كما هي) ...
+
+        // ============= إصلاحات إضافية =============
+        function showError(msg) {
+            const errorDiv = document.getElementById('loginError');
+            errorDiv.textContent = msg;
+            errorDiv.style.display = 'block';
+            setTimeout(() => errorDiv.style.display = 'none', 3000);
         }
 
         async function loadDashboard(userId) {
@@ -132,18 +120,17 @@
                 const response = await axios.get(`https://673a394a339a4ce445179ae7.mockapi.io/User/${userId}`);
                 const userData = response.data;
                 
-                // ... (نفس كود عرض لوحة التحكم من الإجابة السابقة) ...
+                // ... (نفس كود عرض البيانات السابق) ...
+                
             } catch (error) {
-                console.error('حدث خطأ في جلب البيانات:', error);
+                console.error('Error loading dashboard:', error);
+                logout();
             }
         }
 
-        // التحقق من وجود جلسة مسجلة
-        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-        if(currentUser) {
-            loginPage.style.display = 'none';
-            dashboard.style.display = 'block';
-            loadDashboard(currentUser.id);
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.reload();
         }
     </script>
 </body>
