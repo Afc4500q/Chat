@@ -39,29 +39,137 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script>
-        document.getElementById('login-form').addEventListener('submit', function(event) {
-            event.preventDefault();
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
+async function loadDashboard() {
+    try {
+        // استرجاع معرف المستخدم من LocalStorage
+        const userId = localStorage.getItem('userId');
+        if (!userId) {
+            showError('لم يتم العثور على معرف المستخدم. يرجى تسجيل الدخول مرة أخرى.');
+            return;
+        }
 
-            // التحقق من بيانات المستخدم عبر API
-            axios.get('https://673a394a339a4ce445179ae7.mockapi.io/User')
-                .then(response => {
-                    const users = response.data;
-                    const user = users.find(u => u.user === username && u.password === password);
-                    if (user) {
-                        // تخزين ID المستخدم وتوجيهه
-                        localStorage.setItem('userId', user.id);
-                        window.location.href = 'dashboard.html';
-                    } else {
-                        document.getElementById('error-message').style.display = 'block';
-                    }
-                })
-                .catch(error => {
-                    console.error('حدث خطأ:', error);
-                });
+        // جلب البيانات بناءً على معرف المستخدم
+        const response = await axios.get(`https://673a394a339a4ce445179ae7.mockapi.io/User/${userId}`);
+        const userData = response.data;
+        
+        // عرض المعلومات الشخصية
+        document.getElementById('user-info').innerHTML = `
+            <div class="col-md-4">
+                <div class="d-flex align-items-center p-3 bg-light rounded-3">
+                    <i class="fas fa-user-tag fs-3 text-primary me-3"></i>
+                    <div>
+                        <p class="mb-0 text-muted">الاسم الكامل</p>
+                        <h4 class="mb-0 fw-bold">${userData.name}</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="d-flex align-items-center p-3 bg-light rounded-3">
+                    <i class="fas fa-id-card fs-3 text-success me-3"></i>
+                    <div>
+                        <p class="mb-0 text-muted">اسم المستخدم</p>
+                        <h4 class="mb-0 fw-bold">${userData.user}</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="d-flex align-items-center p-3 bg-light rounded-3">
+                    <i class="fas fa-wallet fs-3 text-danger me-3"></i>
+                    <div>
+                        <p class="mb-0 text-muted">الرصيد المتاح</p>
+                        <h4 class="mb-0 fw-bold currency">${userData.total} IQD</h4>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // عرض الإحصائيات
+        document.getElementById('stats').innerHTML = `
+            <div class="col-md-3">
+                <div class="stat-card p-4 text-white" style="background: #4A90E2">
+                    <i class="fas fa-clipboard-list fs-2 mb-3"></i>
+                    <h5 class="mb-1">الطلبات الكلية</h5>
+                    <h1 class="mb-0 fw-bold">${userData.total}</h1>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card p-4 text-white" style="background: #6DD400">
+                    <i class="fas fa-check-circle fs-2 mb-3"></i>
+                    <h5 class="mb-1">الطلبات الناجحة</h5>
+                    <h1 class="mb-0 fw-bold">${userData.successful}</h1>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card p-4 text-white" style="background: #FFC107">
+                    <i class="fas fa-pause-circle fs-2 mb-3"></i>
+                    <h5 class="mb-1">الطلبات المعلقة</h5>
+                    <h1 class="mb-0 fw-bold">${userData.pending}</h1>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card p-4 text-white" style="background: #FF5252">
+                    <i class="fas fa-times-circle fs-2 mb-3"></i>
+                    <h5 class="mb-1">الطلبات المرفوضة</h5>
+                    <h1 class="mb-0 fw-bold">${userData.rejected}</h1>
+                </div>
+            </div>
+        `;
+
+        // عرض المنتجات
+        const productsList = document.getElementById('products-list');
+        productsList.innerHTML = ''; // مسح المحتوى القديم
+        userData.products.forEach(product => {
+            productsList.innerHTML += `
+                <div class="col-md-6 col-xl-4">
+                    <div class="product-card p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fas fa-cube fs-4 text-primary me-3"></i>
+                            <h5 class="mb-0 fw-bold">${product.name}</h5>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <div class="text-muted">رقم الهاتف</div>
+                                <div class="fw-bold">
+                                    <i class="fas fa-phone me-2"></i>
+                                    ${product.phone || 'غير متوفر'}
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="text-muted">السعر</div>
+                                <div class="fw-bold currency">${product.price} IQD</div>
+                            </div>
+                            <div class="col-6">
+                                <div class="text-muted">الحالة</div>
+                                <span class="badge badge-custom bg-${getStatusColor(product.status)}">${product.status}</span>
+                            </div>
+                            <div class="col-6">
+                                <div class="text-muted">الولاية</div>
+                                <div>${product.state}</div>
+                            </div>
+                            <div class="col-6">
+                                <div class="text-muted">المدينة</div>
+                                <div>${product.city}</div>
+                            </div>
+                            <div class="col-6">
+                                <div class="text-muted">المنطقة</div>
+                                <div>${product.area}</div>
+                            </div>
+                            <div class="col-12">
+                                <hr class="my-2">
+                                <div class="d-flex justify-content-between text-muted small">
+                                    <span>النوع: ${product.type}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
         });
+    } catch (error) {
+        console.error('حدث خطأ في جلب البيانات:', error);
+        showError('تعذر تحميل البيانات، يرجى المحاولة لاحقاً');
+    }
+}
     </script>
 </body>
 </html>
