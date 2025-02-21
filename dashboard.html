@@ -100,87 +100,27 @@
         const currentUser = JSON.parse(localStorage.getItem('currentUser'));
         if (!currentUser) window.location.href = 'login.html';
 
-        let userProducts = []; // مصفوفة لتخزين المنتجات
+        let userProducts = [];
 
-        // تحميل البيانات
         async function loadDashboard() {
             try {
-                const { data } = await axios.get(`https://673a394a339a4ce445179ae7.mockapi.io/User/${currentUser.id}`);
-                userProducts = data.products || [];
-                
-                // تحديث واجهة المستخدم
-                updateUI(data);
-                
+                const response = await axios.get(`https://673a394a339a4ce445179ae7.mockapi.io/User/${currentUser.id}`);
+                userProducts = response.data.products || [];
+                updateUI(response.data);
             } catch (error) {
-                console.error('حدث خطأ:', error);
-                alert('تعذر تحميل البيانات');
-                logout();
+                handleError(error, 'تحميل البيانات');
             }
         }
 
         function updateUI(data) {
             // معلومات المستخدم
             document.getElementById('user-info').innerHTML = `
-                <div class="col-md-4 mb-3">
-                    <div class="card stat-card h-100">
-                        <div class="card-body">
-                            <h5><i class="fas fa-user text-primary"></i> الاسم</h5>
-                            <h2>${data.name}</h2>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4 mb-3">
-                    <div class="card stat-card h-100">
-                        <div class="card-body">
-                            <h5><i class="fas fa-at text-success"></i> اسم المستخدم</h5>
-                            <h2>${data.user}</h2>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4 mb-3">
-                    <div class="card stat-card h-100">
-                        <div class="card-body">
-                            <h5><i class="fas fa-wallet text-danger"></i> الرصيد</h5>
-                            <h2>${data.total} IQD</h2>
-                        </div>
-                    </div>
-                </div>
+                <!-- ... (نفس الكود السابق) ... -->
             `;
 
             // الإحصائيات
             document.getElementById('stats').innerHTML = `
-                <div class="col mb-3">
-                    <div class="card bg-primary text-white h-100">
-                        <div class="card-body">
-                            <h5>الطلبات الكلية</h5>
-                            <h1>${data.total}</h1>
-                        </div>
-                    </div>
-                </div>
-                <div class="col mb-3">
-                    <div class="card bg-success text-white h-100">
-                        <div class="card-body">
-                            <h5>الطلبات الناجحة</h5>
-                            <h1>${data.successful}</h1>
-                        </div>
-                    </div>
-                </div>
-                <div class="col mb-3">
-                    <div class="card bg-warning text-white h-100">
-                        <div class="card-body">
-                            <h5>الطلبات المعلقة</h5>
-                            <h1>${data.pending}</h1>
-                        </div>
-                    </div>
-                </div>
-                <div class="col mb-3">
-                    <div class="card bg-danger text-white h-100">
-                        <div class="card-body">
-                            <h5>الطلبات المرفوضة</h5>
-                            <h1>${data.rejected}</h1>
-                        </div>
-                    </div>
-                </div>
+                <!-- ... (نفس الكود السابق) ... -->
             `;
 
             // المنتجات
@@ -190,29 +130,7 @@
                         <div class="card-body">
                             <h5><i class="fas fa-cube"></i> ${product.name}</h5>
                             <div class="row">
-                                <div class="col-6">
-                                    <small>السعر: ${product.price} IQD</small>
-                                </div>
-                                <div class="col-6">
-                                    <span class="badge bg-${getStatusColor(product.status)}">
-                                        ${product.status}
-                                    </span>
-                                </div>
-                                <div class="col-12 mt-2">
-                                    <small><i class="fas fa-id-badge"></i> ID: ${product.id}</small>
-                                </div>
-                                <div class="col-12 mt-2">
-                                    <small><i class="fas fa-map-marker-alt"></i> المنطقة: ${product.region || 'غير متوفر'}</small>
-                                </div>
-                                <div class="col-12">
-                                    <small><i class="fas fa-city"></i> المدينة: ${product.city || 'غير متوفر'}</small>
-                                </div>
-                                <div class="col-12">
-                                    <small><i class="fas fa-flag"></i> الولاية: ${product.state || 'غير متوفر'}</small>
-                                </div>
-                                <div class="col-12">
-                                    <small><i class="fas fa-phone"></i> ${product.phone || 'غير متوفر'}</small>
-                                </div>
+                                <!-- ... (تفاصيل المنتج) ... -->
                                 <div class="d-flex gap-2 mt-3">
                                     <button class="btn btn-danger btn-sm" onclick="deleteProduct('${product.id}')">
                                         <i class="fas fa-trash"></i> حذف
@@ -226,84 +144,84 @@
                     </div>
                 </div>
             `).join('');
-
             document.getElementById('products-list').innerHTML = productsHTML;
         }
 
-        function getStatusColor(status) {
-            const colors = {
-                'قيد المراجعة': 'warning',
-                'مكتمل': 'success',
-                'مرفوض': 'danger'
-            };
-            return colors[status] || 'secondary';
-        }
-
         async function deleteProduct(productId) {
-            if(!confirm('هل أنت متأكد من حذف هذا المنتج؟')) return;
+            if (!confirm('هل أنت متأكد من الحذف؟')) return;
             
             try {
-                // حذف من المصفوفة المحلية
-                userProducts = userProducts.filter(p => p.id !== productId);
+                // الطريقة المثلى: حذف مباشر
+                await axios.delete(`https://673a394a339a4ce445179ae7.mockapi.io/User/${currentUser.id}/products/${productId}`);
                 
-                // تحديث API
-                await axios.put(
-                    `https://673a394a339a4ce445179ae7.mockapi.io/User/${currentUser.id}`,
-                    { products: userProducts }
-                );
-                
-                // تحديث الواجهة
-                updateUI({...currentUser, products: userProducts});
-                
+                // طريقة بديلة: تحديث المصفوفة
+                // userProducts = userProducts.filter(p => p.id !== productId);
+                // await axios.put(`https://673a394a339a4ce445179ae7.mockapi.io/User/${currentUser.id}`, {products: userProducts});
+
+                await loadDashboard();
+                showAlert('تم الحذف بنجاح!', 'success');
             } catch (error) {
-                console.error('حدث خطأ أثناء الحذف:', error);
+                handleError(error, 'حذف المنتج');
             }
         }
 
         function openEditModal(productId) {
             const product = userProducts.find(p => p.id === productId);
-            if(product) {
-                document.getElementById('editProductId').value = productId;
-                document.getElementById('editName').value = product.name;
-                document.getElementById('editPrice').value = product.price;
-                document.getElementById('editRegion').value = product.region || '';
-                document.getElementById('editCity').value = product.city || '';
-                document.getElementById('editState').value = product.state || '';
-                document.getElementById('editPhone').value = product.phone || '';
-                new bootstrap.Modal(document.getElementById('editModal')).show();
-            }
+            if (!product) return;
+
+            document.getElementById('editProductId').value = productId;
+            document.getElementById('editName').value = product.name;
+            document.getElementById('editPrice').value = product.price;
+            document.getElementById('editRegion').value = product.region || '';
+            document.getElementById('editCity').value = product.city || '';
+            document.getElementById('editState').value = product.state || '';
+            document.getElementById('editPhone').value = product.phone || '';
+            
+            new bootstrap.Modal(document.getElementById('editModal')).show();
         }
 
         async function saveChanges() {
             const productId = document.getElementById('editProductId').value;
-            const updatedProduct = {
-                name: document.getElementById('editName').value,
-                price: document.getElementById('editPrice').value,
-                region: document.getElementById('editRegion').value,
-                city: document.getElementById('editCity').value,
-                state: document.getElementById('editState').value,
-                phone: document.getElementById('editPhone').value
-            };
-
             try {
-                // تحديث المصفوفة المحلية
-                userProducts = userProducts.map(p => 
-                    p.id === productId ? {...p, ...updatedProduct} : p
-                );
+                const updatedData = {
+                    name: document.getElementById('editName').value,
+                    price: parseFloat(document.getElementById('editPrice').value),
+                    region: document.getElementById('editRegion').value,
+                    city: document.getElementById('editCity').value,
+                    state: document.getElementById('editState').value,
+                    phone: document.getElementById('editPhone').value
+                };
 
-                // تحديث API
+                // الطريقة المثلى: تحديث مباشر
                 await axios.put(
-                    `https://673a394a339a4ce445179ae7.mockapi.io/User/${currentUser.id}`,
-                    { products: userProducts }
+                    `https://673a394a339a4ce445179ae7.mockapi.io/User/${currentUser.id}/products/${productId}`,
+                    updatedData
                 );
 
-                // تحديث الواجهة
-                updateUI({...currentUser, products: userProducts});
+                // طريقة بديلة: تحديث المصفوفة
+                // const index = userProducts.findIndex(p => p.id === productId);
+                // userProducts[index] = {...userProducts[index], ...updatedData};
+                // await axios.put(`https://673a394a339a4ce445179ae7.mockapi.io/User/${currentUser.id}`, {products: userProducts});
+
+                await loadDashboard();
                 new bootstrap.Modal(document.getElementById('editModal')).hide();
-                
+                showAlert('تم التحديث بنجاح!', 'success');
             } catch (error) {
-                console.error('حدث خطأ أثناء التحديث:', error);
+                handleError(error, 'تحديث المنتج');
             }
+        }
+
+        function handleError(error, operation) {
+            console.error(`خطأ في ${operation}:`, error);
+            showAlert(`فشل في ${operation}: ${error.message}`, 'danger');
+        }
+
+        function showAlert(message, type) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} position-fixed top-0 end-0 m-3`;
+            alertDiv.textContent = message;
+            document.body.appendChild(alertDiv);
+            setTimeout(() => alertDiv.remove(), 3000);
         }
 
         function logout() {
@@ -311,7 +229,7 @@
             window.location.href = 'login.html';
         }
 
-        // تحميل البيانات عند بدء التشغيل
+        // بدء التحميل
         loadDashboard();
     </script>
 </body>
