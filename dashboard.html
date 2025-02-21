@@ -1,182 +1,177 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <!-- ... (بقية الhead كما هي) ... -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2A3F5F;
+            --secondary-color: #4A90E2;
+        }
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: #f8f9fa;
+        }
+        .stat-card {
+            border-left: 4px solid var(--secondary-color);
+            transition: transform 0.3s;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        .product-card {
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+    </style>
 </head>
 <body>
-    <!-- صفحة تسجيل الدخول (نفس الكود السابق) ... -->
-
-    <!-- صفحة لوحة التحكم -->
-    <div id="dashboard" style="display: none;" class="container-fluid py-4">
-        <!-- معلومات المستخدم -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="card shadow-lg">
-                    <div class="card-header">
-                        <h4 class="mb-0"><i class="fas fa-user-shield me-2"></i>المعلومات الشخصية</h4>
-                    </div>
-                    <div class="card-body">
-                        <div id="user-info" class="row g-4"></div>
-                    </div>
-                </div>
-            </div>
+    <div class="container-fluid py-4">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="text-primary"><i class="fas fa-tachometer-alt"></i> لوحة التحكم</h1>
+            <button class="btn btn-danger" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
+            </button>
         </div>
+
+        <!-- معلومات المستخدم -->
+        <div class="row mb-4" id="user-info"></div>
 
         <!-- الإحصائيات -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="card shadow-lg">
-                    <div class="card-header">
-                        <h4 class="mb-0"><i class="fas fa-chart-pie me-2"></i>إحصائيات الطلبات</h4>
-                    </div>
-                    <div class="card-body">
-                        <div id="stats" class="row g-4"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <div class="row mb-4" id="stats"></div>
 
         <!-- المنتجات -->
-        <div class="row">
-            <div class="col-12">
-                <div class="card shadow-lg">
-                    <div class="card-header">
-                        <h4 class="mb-0"><i class="fas fa-boxes me-2"></i>قائمة المنتجات</h4>
-                    </div>
-                    <div class="card-body">
-                        <div id="products-list" class="row g-4"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <div class="row" id="products-list"></div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
-        // ... (كود تسجيل الدخول السابق) ...
+        // التحقق من الجلسة
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        if (!currentUser) window.location.href = 'login.html';
 
-        async function loadDashboard(userId) {
+        // تحميل البيانات
+        async function loadDashboard() {
             try {
-                const response = await axios.get(`https://673a394a339a4ce445179ae7.mockapi.io/User/${userId}`);
-                const userData = response.data;
+                const { data } = await axios.get(`https://673a394a339a4ce445179ae7.mockapi.io/User/${currentUser.id}`);
                 
-                // عرض المعلومات الشخصية
+                // معلومات المستخدم
                 document.getElementById('user-info').innerHTML = `
-                    <div class="col-md-4">
-                        <div class="d-flex align-items-center p-3 bg-light rounded-3">
-                            <i class="fas fa-user-tag fs-3 text-primary me-3"></i>
-                            <div>
-                                <p class="mb-0 text-muted">الاسم الكامل</p>
-                                <h4 class="mb-0 fw-bold">${userData.name}</h4>
+                    <div class="col-md-4 mb-3">
+                        <div class="card stat-card h-100">
+                            <div class="card-body">
+                                <h5><i class="fas fa-user text-primary"></i> الاسم</h5>
+                                <h2>${data.name}</h2>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-4">
-                        <div class="d-flex align-items-center p-3 bg-light rounded-3">
-                            <i class="fas fa-id-card fs-3 text-success me-3"></i>
-                            <div>
-                                <p class="mb-0 text-muted">اسم المستخدم</p>
-                                <h4 class="mb-0 fw-bold">${userData.user}</h4>
+                    <div class="col-md-4 mb-3">
+                        <div class="card stat-card h-100">
+                            <div class="card-body">
+                                <h5><i class="fas fa-at text-success"></i> اسم المستخدم</h5>
+                                <h2>${data.user}</h2>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-4">
-                        <div class="d-flex align-items-center p-3 bg-light rounded-3">
-                            <i class="fas fa-wallet fs-3 text-danger me-3"></i>
-                            <div>
-                                <p class="mb-0 text-muted">الرصيد المتاح</p>
-                                <h4 class="mb-0 fw-bold currency">${userData.total} IQD</h4>
+                    <div class="col-md-4 mb-3">
+                        <div class="card stat-card h-100">
+                            <div class="card-body">
+                                <h5><i class="fas fa-wallet text-danger"></i> الرصيد</h5>
+                                <h2>${data.total} IQD</h2>
                             </div>
                         </div>
                     </div>
                 `;
 
-                // عرض الإحصائيات
+                // الإحصائيات
                 document.getElementById('stats').innerHTML = `
-                    <div class="col-md-3">
-                        <div class="stat-card p-4 text-white" style="background: #4A90E2">
-                            <i class="fas fa-clipboard-list fs-2 mb-3"></i>
-                            <h5 class="mb-1">الطلبات الكلية</h5>
-                            <h1 class="mb-0 fw-bold">${userData.total}</h1>
+                    <div class="col-md-3 mb-3">
+                        <div class="card bg-primary text-white h-100">
+                            <div class="card-body">
+                                <h5>الطلبات الكلية</h5>
+                                <h1>${data.total}</h1>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-md-3">
-                        <div class="stat-card p-4 text-white" style="background: #6DD400">
-                            <i class="fas fa-check-circle fs-2 mb-3"></i>
-                            <h5 class="mb-1">الطلبات الناجحة</h5>
-                            <h1 class="mb-0 fw-bold">${userData.successful}</h1>
+                    <div class="col-md-3 mb-3">
+                        <div class="card bg-success text-white h-100">
+                            <div class="card-body">
+                                <h5>الطلبات الناجحة</h5>
+                                <h1>${data.successful}</h1>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-md-3">
-                        <div class="stat-card p-4 text-white" style="background: #FFC107">
-                            <i class="fas fa-pause-circle fs-2 mb-3"></i>
-                            <h5 class="mb-1">الطلبات المعلقة</h5>
-                            <h1 class="mb-0 fw-bold">${userData.pending}</h1>
+                    <div class="col-md-3 mb-3">
+                        <div class="card bg-warning text-white h-100">
+                            <div class="card-body">
+                                <h5>الطلبات المعلقة</h5>
+                                <h1>${data.pending}</h1>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-md-3">
-                        <div class="stat-card p-4 text-white" style="background: #FF5252">
-                            <i class="fas fa-times-circle fs-2 mb-3"></i>
-                            <h5 class="mb-1">الطلبات المرفوضة</h5>
-                            <h1 class="mb-0 fw-bold">${userData.rejected}</h1>
+                    <div class="col-md-3 mb-3">
+                        <div class="card bg-danger text-white h-100">
+                            <div class="card-body">
+                                <h5>الطلبات المرفوضة</h5>
+                                <h1>${data.rejected}</h1>
+                            </div>
                         </div>
                     </div>
                 `;
 
-                // عرض المنتجات
-                const productsList = document.getElementById('products-list');
-                productsList.innerHTML = ''; // مسح المحتوى القديم
-                userData.products.forEach(product => {
-                    productsList.innerHTML += `
-                        <div class="col-md-6 col-xl-4">
-                            <div class="product-card p-4">
-                                <div class="d-flex align-items-center mb-3">
-                                    <i class="fas fa-cube fs-4 text-primary me-3"></i>
-                                    <h5 class="mb-0 fw-bold">${product.name}</h5>
-                                </div>
-                                <div class="row g-3">
+                // المنتجات
+                const productsHTML = data.products.map(product => `
+                    <div class="col-md-4 mb-3">
+                        <div class="card product-card h-100">
+                            <div class="card-body">
+                                <h5><i class="fas fa-cube"></i> ${product.name}</h5>
+                                <div class="row">
                                     <div class="col-6">
-                                        <div class="text-muted">رقم الهاتف</div>
-                                        <div class="fw-bold">
-                                            <i class="fas fa-phone me-2"></i>
-                                            ${product.phone || 'غير متوفر'}
-                                        </div>
+                                        <small>السعر: ${product.price} IQD</small>
                                     </div>
                                     <div class="col-6">
-                                        <div class="text-muted">السعر</div>
-                                        <div class="fw-bold currency">${product.price} IQD</div>
+                                        <span class="badge bg-${getStatusColor(product.status)}">
+                                            ${product.status}
+                                        </span>
                                     </div>
-                                    <div class="col-6">
-                                        <div class="text-muted">الحالة</div>
-                                        <span class="badge badge-custom bg-${getStatusColor(product.status)}">${product.status}</span>
-                                    </div>
-                                    <div class="col-6">
-                                        <div class="text-muted">الولاية</div>
-                                        <div>${product.state}</div>
-                                    </div>
-                                    <div class="col-6">
-                                        <div class="text-muted">المدينة</div>
-                                        <div>${product.city}</div>
-                                    </div>
-                                    <div class="col-6">
-                                        <div class="text-muted">المنطقة</div>
-                                        <div>${product.area}</div>
-                                    </div>
-                                    <div class="col-12">
-                                        <hr class="my-2">
-                                        <div class="d-flex justify-content-between text-muted small">
-                                            <span>النوع: ${product.type}</span>
-                                        </div>
+                                    <div class="col-12 mt-2">
+                                        <small><i class="fas fa-phone"></i> ${product.phone || 'غير متوفر'}</small>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    `;
-                });
+                    </div>
+                `).join('');
+
+                document.getElementById('products-list').innerHTML = productsHTML;
+
             } catch (error) {
-                console.error('حدث خطأ في جلب البيانات:', error);
-                showError('تعذر تحميل البيانات، يرجى المحاولة لاحقاً');
+                console.error('حدث خطأ:', error);
+                alert('تعذر تحميل البيانات');
+                logout();
             }
         }
+
+        function getStatusColor(status) {
+            const colors = {
+                'قيد المراجعة': 'warning',
+                'مكتمل': 'success',
+                'مرفوض': 'danger'
+            };
+            return colors[status] || 'secondary';
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'login.html';
+        }
+
+        // تحميل البيانات عند بدء التشغيل
+        loadDashboard();
     </script>
 </body>
 </html>
