@@ -42,7 +42,7 @@
         <div class="row mb-4" id="user-info"></div>
 
         <!-- الإحصائيات -->
-        <div class="row mb-4" id="stats"></div>
+        <div class="row row-cols-2 mb-4" id="stats"></div>
 
         <!-- المنتجات -->
         <div class="row" id="products-list"></div>
@@ -89,7 +89,7 @@
 
                 // الإحصائيات
                 document.getElementById('stats').innerHTML = `
-                    <div class="col-md-3 mb-3">
+                    <div class="col mb-3">
                         <div class="card bg-primary text-white h-100">
                             <div class="card-body">
                                 <h5>الطلبات الكلية</h5>
@@ -97,7 +97,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-3 mb-3">
+                    <div class="col mb-3">
                         <div class="card bg-success text-white h-100">
                             <div class="card-body">
                                 <h5>الطلبات الناجحة</h5>
@@ -105,7 +105,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-3 mb-3">
+                    <div class="col mb-3">
                         <div class="card bg-warning text-white h-100">
                             <div class="card-body">
                                 <h5>الطلبات المعلقة</h5>
@@ -113,7 +113,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-3 mb-3">
+                    <div class="col mb-3">
                         <div class="card bg-danger text-white h-100">
                             <div class="card-body">
                                 <h5>الطلبات المرفوضة</h5>
@@ -139,6 +139,18 @@
                                         </span>
                                     </div>
                                     <div class="col-12 mt-2">
+                                        <small><i class="fas fa-id-badge"></i> ID: ${product.id}</small>
+                                    </div>
+                                    <div class="col-12 mt-2">
+                                        <small><i class="fas fa-map-marker-alt"></i> المنطقة: ${product.region || 'غير متوفر'}</small>
+                                    </div>
+                                    <div class="col-12">
+                                        <small><i class="fas fa-city"></i> المدينة: ${product.city || 'غير متوفر'}</small>
+                                    </div>
+                                    <div class="col-12">
+                                        <small><i class="fas fa-flag"></i> الولاية: ${product.state || 'غير متوفر'}</small>
+                                    </div>
+                                    <div class="col-12">
                                         <small><i class="fas fa-phone"></i> ${product.phone || 'غير متوفر'}</small>
                                     </div>
                                 </div>
