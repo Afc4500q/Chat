@@ -285,11 +285,11 @@
                 );
 
                 // طريقة بديلة إذا لم تعمل الأولى
-                // const userRes = await axios.get(`https://673a394a339a4ce445179ae7.mockapi.io/User/${currentUser.id}`);
-                // const updatedProducts = userRes.data.products.map(p => 
-                //     p.id === productId ? {...p, ...updatedData} : p
-                // );
-                // await axios.put(`https://673a394a339a4ce445179ae7.mockapi.io/User/${currentUser.id}`, {products: updatedProducts});
+                  const userRes = await axios.get(`https://673a394a339a4ce445179ae7.mockapi.io/User/${currentUser.id}`);
+                 const updatedProducts = userRes.data.products.map(p => 
+                   p.id === productId ? {...p, ...updatedData} : p
+                );
+               await axios.put(`https://673a394a339a4ce445179ae7.mockapi.io/User/${currentUser.id}`, {products: updatedProducts});
 
                 loadDashboard();
                 new bootstrap.Modal(document.getElementById('editModal')).hide();
