@@ -96,200 +96,200 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-     // التحقق من الجلسة
-        const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-        if (!currentUser) window.location.href = "login.html";
+   // التحقق من الجلسة
+const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+if (!currentUser) window.location.href = "login.html";
 
-        // متغير لتخزين بيانات المنتجات
-        let productsData = [];
+// متغير لتخزين بيانات المنتجات
+let productsData = [];
 
-        // تحميل البيانات عند بدء التشغيل
-        document.addEventListener("DOMContentLoaded", loadDashboard);
+// تحميل البيانات عند بدء التشغيل
+document.addEventListener("DOMContentLoaded", loadDashboard);
 
-        async function loadDashboard() {
-            try {
-                const response = await fetch(
-                    `https://673a394a339a4ce445179ae7.mockapi.io/User/${currentUser.id}`
-                );
-                const data = await response.json();
-                
-                // تخزين بيانات المنتجات
-                productsData = data.products || [];
-                
-                // تحديث واجهة المستخدم
-                updateUserInfo(data);
-                updateStats(data);
-                renderProducts(productsData);
-            } catch (error) {
-                handleError("حدث خطأ أثناء تحميل البيانات:", error);
+async function loadDashboard() {
+    try {
+        const response = await fetch(
+            `https://673a394a339a4ce445179ae7.mockapi.io/User/${currentUser.id}`
+        );
+        const data = await response.json();
+
+        // تخزين بيانات المنتجات
+        productsData = data.products || [];
+
+        // تحديث واجهة المستخدم
+        updateUserInfo(data);
+        updateStats(data);
+        renderProducts(productsData);
+    } catch (error) {
+        handleError("حدث خطأ أثناء تحميل البيانات:", error);
+    }
+}
+
+function updateUserInfo(data) {
+    document.getElementById("user-info").innerHTML = `
+        <div class="col-md-4 mb-3">
+            <div class="card stat-card h-100">
+                <div class="card-body">
+                    <h5><i class="fas fa-user text-primary"></i> الاسم</h5>
+                    <h2>${data.name}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card stat-card h-100">
+                <div class="card-body">
+                    <h5><i class="fas fa-at text-success"></i> اسم المستخدم</h5>
+                    <h2>${data.user}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card stat-card h-100">
+                <div class="card-body">
+                    <h5><i class="fas fa-wallet text-danger"></i> الرصيد</h5>
+                    <h2>${data.total} IQD</h2>
+                </div>
+            </div>
+        </div>`;
+}
+
+function updateStats(data) {
+    document.getElementById("stats").innerHTML = `
+        <div class="col mb-3">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body">
+                    <h5>الطلبات الكلية</h5>
+                    <h1>${data.total}</h1>
+                </div>
+            </div>
+        </div>
+        <div class="col mb-3">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body">
+                    <h5>الطلبات الناجحة</h5>
+                    <h1>${data.successful}</h1>
+                </div>
+            </div>
+        </div>
+        <div class="col mb-3">
+            <div class="card bg-warning text-white h-100">
+                <div class="card-body">
+                    <h5>الطلبات المعلقة</h5>
+                    <h1>${data.pending}</h1>
+                </div>
+            </div>
+        </div>
+        <div class="col mb-3">
+            <div class="card bg-danger text-white h-100">
+                <div class="card-body">
+                    <h5>الطلبات المرفوضة</h5>
+                    <h1>${data.rejected}</h1>
+                </div>
+            </div>
+        </div>`;
+}
+
+function renderProducts(products) {
+    const productsList = document.getElementById("products-list");
+    productsList.innerHTML = products.map(product => `
+        <div class="col-md-4 mb-3">
+            <div class="card product-card h-100">
+                <div class="card-body">
+                    <h5><i class="fas fa-cube"></i> ${product.name}</h5>
+                    <p><small>السعر: ${product.price} IQD</small></p>
+                    <p><small><i class="fas fa-map-marker-alt"></i> المنطقة: ${product.region || "غير متوفر"}</small></p>
+                    <p><small><i class="fas fa-city"></i> المدينة: ${product.city || "غير متوفر"}</small></p>
+                    <p><small><i class="fas fa-phone"></i> ${product.phone || "غير متوفر"}</small></p>
+                    <div class="d-flex gap-2 mt-3">
+                        <button class="btn btn-danger btn-sm" onclick="deleteProduct('${product.id}')">
+                            <i class="fas fa-trash"></i> حذف
+                        </button>
+                        <button class="btn btn-primary btn-sm" onclick="openEditModal('${product.id}')">
+                            <i class="fas fa-edit"></i> تعديل
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>`
+    ).join("");
+}
+
+async function deleteProduct(productId) {
+    if (!confirm("هل أنت متأكد من حذف هذا المنتج؟")) return;
+
+    try {
+        await fetch(
+            `https://673a394a339a4ce445179ae7.mockapi.io/User/${currentUser.id}/products/${productId}`,
+            { method: "DELETE" }
+        );
+
+        showSuccess("تم الحذف بنجاح!");
+        await loadDashboard();
+    } catch (error) {
+        handleError("حدث خطأ أثناء الحذف:", error);
+    }
+}
+
+function openEditModal(productId) {
+    const product = productsData.find(p => p.id === productId);
+    if (!product) return alert('المنتج غير موجود');
+
+    // تعبئة بيانات النموذج
+    document.getElementById("editProductId").value = product.id;
+    document.getElementById("editName").value = product.name;
+    document.getElementById("editPrice").value = product.price;
+    document.getElementById("editRegion").value = product.region || "";
+    document.getElementById("editCity").value = product.city || "";
+    document.getElementById("editState").value = product.state || "";
+    document.getElementById("editPhone").value = product.phone || "";
+
+    // عرض النموذج
+    new bootstrap.Modal(document.getElementById("editModal")).show();
+}
+
+async function saveChanges() {
+    const productId = document.getElementById("editProductId").value;
+    const updatedData = {
+        name: document.getElementById("editName").value,
+        price: document.getElementById("editPrice").value,
+        region: document.getElementById("editRegion").value,
+        city: document.getElementById("editCity").value,
+        state: document.getElementById("editState").value,
+        phone: document.getElementById("editPhone").value,
+    };
+
+    try {
+        await fetch(
+            `https://673a394a339a4ce445179ae7.mockapi.io/User/${currentUser.id}/products/${productId}`,
+            {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(updatedData),
             }
-        }
+        );
 
-        function updateUserInfo(data) {
-            document.getElementById("user-info").innerHTML = `
-                <div class="col-md-4 mb-3">
-                    <div class="card stat-card h-100">
-                        <div class="card-body">
-                            <h5><i class="fas fa-user text-primary"></i> الاسم</h5>
-                            <h2>${data.name}</h2>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4 mb-3">
-                    <div class="card stat-card h-100">
-                        <div class="card-body">
-                            <h5><i class="fas fa-at text-success"></i> اسم المستخدم</h5>
-                            <h2>${data.user}</h2>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4 mb-3">
-                    <div class="card stat-card h-100">
-                        <div class="card-body">
-                            <h5><i class="fas fa-wallet text-danger"></i> الرصيد</h5>
-                            <h2>${data.total} IQD</h2>
-                        </div>
-                    </div>
-                </div>`;
-        }
+        showSuccess("تم التحديث بنجاح!");
+        new bootstrap.Modal(document.getElementById("editModal")).hide();
+        await loadDashboard();
+    } catch (error) {
+        handleError("حدث خطأ أثناء التحديث:", error);
+    }
+}
 
-        function updateStats(data) {
-            document.getElementById("stats").innerHTML = `
-                <div class="col mb-3">
-                    <div class="card bg-primary text-white h-100">
-                        <div class="card-body">
-                            <h5>الطلبات الكلية</h5>
-                            <h1>${data.total}</h1>
-                        </div>
-                    </div>
-                </div>
-                <div class="col mb-3">
-                    <div class="card bg-success text-white h-100">
-                        <div class="card-body">
-                            <h5>الطلبات الناجحة</h5>
-                            <h1>${data.successful}</h1>
-                        </div>
-                    </div>
-                </div>
-                <div class="col mb-3">
-                    <div class="card bg-warning text-white h-100">
-                        <div class="card-body">
-                            <h5>الطلبات المعلقة</h5>
-                            <h1>${data.pending}</h1>
-                        </div>
-                    </div>
-                </div>
-                <div class="col mb-3">
-                    <div class="card bg-danger text-white h-100">
-                        <div class="card-body">
-                            <h5>الطلبات المرفوضة</h5>
-                            <h1>${data.rejected}</h1>
-                        </div>
-                    </div>
-                </div>`;
-        }
+// وظائف مساعدة
+function showSuccess(message) {
+    alert(message);
+}
 
-        function renderProducts(products) {
-            const productsList = document.getElementById("products-list");
-            productsList.innerHTML = products.map(product => `
-                <div class="col-md-4 mb-3">
-                    <div class="card product-card h-100">
-                        <div class="card-body">
-                            <h5><i class="fas fa-cube"></i> ${product.name}</h5>
-                            <p><small>السعر: ${product.price} IQD</small></p>
-                            <p><small><i class="fas fa-map-marker-alt"></i> المنطقة: ${product.region || "غير متوفر"}</small></p>
-                            <p><small><i class="fas fa-city"></i> المدينة: ${product.city || "غير متوفر"}</small></p>
-                            <p><small><i class="fas fa-phone"></i> ${product.phone || "غير متوفر"}</small></p>
-                            <div class="d-flex gap-2 mt-3">
-                                <button class="btn btn-danger btn-sm" onclick="deleteProduct('${product.id}')">
-                                    <i class="fas fa-trash"></i> حذف
-                                </button>
-                                <button class="btn btn-primary btn-sm" onclick="openEditModal('${product.id}')">
-                                    <i class="fas fa-edit"></i> تعديل
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>`
-            ).join("");
-        }
+function handleError(logMessage, error) {
+    console.error(logMessage, error);
+    alert("فشل في العملية! الرجاء المحاولة لاحقًا");
+}
 
-        async function deleteProduct(productId) {
-            if (!confirm("هل أنت متأكد من حذف هذا المنتج؟")) return;
-
-            try {
-                await fetch(
-                    `https://673a394a339a4ce445179ae7.mockapi.io/User/${currentUser.id}/products/${productId}`,
-                    { method: "DELETE" }
-                );
-                
-                showSuccess("تم الحذف بنجاح!");
-                await loadDashboard();
-            } catch (error) {
-                handleError("حدث خطأ أثناء الحذف:", error);
-            }
-        }
-
-        function openEditModal(productId) {
-            const product = productsData.find(p => p.id === productId);
-            if (!product) return alert('المنتج غير موجود');
-
-            // تعبئة بيانات النموذج
-            document.getElementById("editProductId").value = product.id;
-            document.getElementById("editName").value = product.name;
-            document.getElementById("editPrice").value = product.price;
-            document.getElementById("editRegion").value = product.region || "";
-            document.getElementById("editCity").value = product.city || "";
-            document.getElementById("editState").value = product.state || "";
-            document.getElementById("editPhone").value = product.phone || "";
-
-            // عرض النموذج
-            new bootstrap.Modal(document.getElementById("editModal")).show();
-        }
-
-        async function saveChanges() {
-            const productId = document.getElementById("editProductId").value;
-            const updatedData = {
-                name: document.getElementById("editName").value,
-                price: document.getElementById("editPrice").value,
-                region: document.getElementById("editRegion").value,
-                city: document.getElementById("editCity").value,
-                state: document.getElementById("editState").value,
-                phone: document.getElementById("editPhone").value,
-            };
-
-            try {
-                await fetch(
-                    `https://673a394a339a4ce445179ae7.mockapi.io/User/${currentUser.id}/products/${productId}`,
-                    {
-                        method: "PUT",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(updatedData),
-                    }
-                );
-
-                showSuccess("تم التحديث بنجاح!");
-                new bootstrap.Modal(document.getElementById("editModal")).hide();
-                await loadDashboard();
-            } catch (error) {
-                handleError("حدث خطأ أثناء التحديث:", error);
-            }
-        }
-
-        // وظائف مساعدة
-        function showSuccess(message) {
-            alert(message);
-        }
-
-        function handleError(logMessage, error) {
-            console.error(logMessage, error);
-            alert("فشل في العملية! الرجاء المحاولة لاحقًا");
-        }
-
-        function logout() {
-            localStorage.removeItem("currentUser");
-            window.location.href = "login.html";
-        }
+function logout() {
+    localStorage.removeItem("currentUser");
+    window.location.href = "login.html";
+}
     </script>
 </body>
 </html>
