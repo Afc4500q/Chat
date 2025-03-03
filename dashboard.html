@@ -33,12 +33,12 @@
         <!-- Header -->
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1 class="text-primary"><i class="fas fa-tachometer-alt"></i> لوحة التحكم</h1>
-            <button class="btn btn-danger" onclick="logout()">
+            <button class="btn btn-danger btn-sm" onclick="logout()">
                 <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
             </button>
-              <button class="btn btn-danger" onclick="logout()">
-                <i class="fas fa-sign-out-alt"></i> اجراء طلب
-            </button>
+             <button class="btn btn-success btn-sm" onclick="goj('/reaspet.html')">
+    <i class="fas fa-sign-out-alt"></i> اجراء طلب
+</button>
         </div>
 
         <!-- معلومات المستخدم -->
@@ -314,6 +314,8 @@ function logout() {
     localStorage.removeItem("currentUser");
     window.location.href = "login.html";
 }
+
+
 </script>
 </body>
 </html>
