@@ -286,11 +286,15 @@ async function saveChanges() {
         });
 
         showSuccess("تم التحديث بنجاح!");
-        new bootstrap.Modal(document.getElementById("editModal")).hide();
+        const modalElement = document.getElementById("editModal");
+const modalInstance = bootstrap.Modal.getInstance(modalElement);
+if (modalInstance) modalInstance.hide();
         await loadDashboard();
     } catch (error) {
         handleError("حدث خطأ أثناء التحديث:", error);
     }
+
+    
 }
 
 // وظائف مساعدة
