@@ -1,0 +1,56 @@
+// بداية الصفحة
+let currentUserId = null;
+
+document.addEventListener("DOMContentLoaded", () => {
+    // استخراج الـ ID من عنوان URL
+    const urlParams = new URLSearchParams(window.location.search);
+    currentUserId = urlParams.get('userId');
+    
+    if (!currentUserId) {
+        alert('غير مصرح بالدخول!');
+        window.location.href = 'login.html';
+    }
+    
+    loadUserData();
+});
+
+async function loadUserData() {
+    try {
+        const response = await fetch(`https://673a394a339a4ce445179ae7.mockapi.io/User/${currentUserId}`);
+        const userData = await response.json();
+        
+        // يمكنك استخدام البيانات هنا إذا لزم الأمر
+        console.log('بيانات المستخدم:', userData);
+    } catch (error) {
+        handleError('فشل في تحميل البيانات:', error);
+    }
+}
+
+// تعديل دالة حفظ البيانات
+async function updateVioData(vioData) {
+    try {
+        // جلب البيانات الحالية
+        const response = await fetch(`https://673a394a339a4ce445179ae7.mockapi.io/User/${currentUserId}`);
+        const userData = await response.json();
+
+        // تحديث كائن VIO
+        const updatedData = {
+            ...userData,
+            vio: {
+                ...userData.vio,
+                ...vioData
+            }
+        };
+
+        // إرسال التحديثات
+        await fetch(`https://673a394a339a4ce445179ae7.mockapi.io/User/${currentUserId}`, {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(updatedData)
+        });
+
+        showSuccess('تم الحفظ بنجاح!');
+    } catch (error) {
+        handleError('حدث خطأ أثناء الحفظ:', error);
+    }
+}
