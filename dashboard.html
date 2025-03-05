@@ -36,9 +36,11 @@
             <button class="btn btn-danger btn-sm" onclick="logout()">
                 <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
             </button>
-             <button class="btn btn-success btn-sm" onclick="goj()">
-    <i class="fa-solid fa-bell"></i> اجراء طلب
+             <!-- تعديل زر الإجراء -->
+<button class="btn btn-success btn-sm" onclick="goToRequestPage()">
+    <i class="fa-solid fa-bell"></i> إجراء طلب
 </button>
+
         </div>
 
         <!-- معلومات المستخدم -->
@@ -127,6 +129,11 @@ async function loadDashboard() {
     } catch (error) {
         handleError("حدث خطأ أثناء تحميل البيانات:", error);
     }
+}
+
+    function goToRequestPage() {
+    const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+    window.location.href = `reaspet.html?userId=${currentUser.id}`;
 }
 
 function updateUserInfo(data) {
