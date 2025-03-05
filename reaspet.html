@@ -1,56 +1,263 @@
-// بداية الصفحة
-let currentUserId = null;
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تقديم طلب جديد</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2A3F5F;
+            --secondary-color: #4A90E2;
+        }
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: #f8f9fa;
+        }
+        .form-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 2rem;
+            margin: 1rem auto;
+            max-width: 600px;
+            display: none;
+        }
+        .form-container.active {
+            display: block;
+        }
+        .payment-field {
+            transition: all 0.3s ease;
+        }
+        .required::after {
+            content: " *";
+            color: red;
+            font-size: 0.8em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-5">
+        <!-- Header -->
+        <div class="text-center mb-5">
+            <h1 class="text-primary"><i class="fa-solid fa-file-invoice"></i> نموذج تقديم الطلبات</h1>
+            <p class="text-muted">املأ البيانات المطلوبة حسب نوع الطلب</p>
+        </div>
 
-document.addEventListener("DOMContentLoaded", () => {
-    // استخراج الـ ID من عنوان URL
-    const urlParams = new URLSearchParams(window.location.search);
-    currentUserId = urlParams.get('userId');
-    
-    if (!currentUserId) {
-        alert('غير مصرح بالدخول!');
-        window.location.href = 'login.html';
-    }
-    
-    loadUserData();
-});
+        <!-- Type Selector -->
+        <div class="d-flex justify-content-center gap-3 mb-5">
+            <button class="btn btn-primary btn-lg" data-form="product-form">
+                <i class="fa-solid fa-box-open"></i> طلب منتجات
+            </button>
+            <button class="btn btn-success btn-lg" data-form="payment-form">
+                <i class="fa-solid fa-credit-card"></i> طلب دفع
+            </button>
+        </div>
 
-async function loadUserData() {
-    try {
-        const response = await fetch(`https://673a394a339a4ce445179ae7.mockapi.io/User/${currentUserId}`);
-        const userData = await response.json();
+        <!-- Product Order Form -->
+        <div id="product-form" class="form-container">
+            <h3 class="mb-4"><i class="fa-solid fa-list-check"></i> تفاصيل طلب المنتجات</h3>
+            <form id="productForm">
+                <div class="mb-3">
+                    <label class="form-label required">عدد القطع المطلوبة</label>
+                    <input type="number" class="form-control" id="totalOrders" min="1" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label required">عنوان التسليم الكامل</label>
+                    <textarea class="form-control" id="deliveryAddress" rows="3" required></textarea>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa-solid fa-paper-plane"></i> تأكيد الطلب
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Payment Request Form -->
+        <div id="payment-form" class="form-container">
+            <h3 class="mb-4"><i class="fa-solid fa-money-check-dollar"></i> تفاصيل طلب الدفع</h3>
+            <form id="paymentForm">
+                <div class="mb-3">
+                    <label class="form-label required">المبلغ المطلوب (IQD)</label>
+                    <input type="number" class="form-control" id="paymentAmount" min="1000" step="500" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label required">طريقة الاستلام</label>
+                    <select class="form-select" id="paymentMethod" required>
+                        <option value="">-- اختر طريقة الدفع --</option>
+                        <option value="Mastercard">ماستركارد</option>
+                        <option value="ZainCash">زين كاش</option>
+                        <option value="Cash">دفع نقدي</option>
+                    </select>
+                </div>
+
+                <!-- Dynamic Fields -->
+                <div id="cardFields" class="payment-field">
+                    <div class="mb-3">
+                        <label class="form-label required">رقم الحساب/البطاقة</label>
+                        <input type="text" class="form-control" id="accountNumber">
+                    </div>
+                </div>
+
+                <div id="cashFields" class="payment-field">
+                    <div class="mb-3">
+                        <label class="form-label required">موقع الاستلام</label>
+                        <textarea class="form-control" id="cashAddress" rows="2"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label required">رقم الهاتف</label>
+                        <input type="tel" class="form-control" id="cashPhone" pattern="[0-9]{10}">
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2 mt-4">
+                    <button type="submit" class="btn btn-success">
+                        <i class="fa-solid fa-check-circle"></i> تأكيد عملية الدفع
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Back Button -->
+        <div class="text-center mt-5">
+            <a href="dashboard.html" class="btn btn-secondary">
+                <i class="fa-solid fa-arrow-right-to-bracket"></i> العودة للوحة التحكم
+            </a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        // Get User ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const userId = urlParams.get('userId');
         
-        // يمكنك استخدام البيانات هنا إذا لزم الأمر
-        console.log('بيانات المستخدم:', userData);
-    } catch (error) {
-        handleError('فشل في تحميل البيانات:', error);
-    }
-}
-
-// تعديل دالة حفظ البيانات
-async function updateVioData(vioData) {
-    try {
-        // جلب البيانات الحالية
-        const response = await fetch(`https://673a394a339a4ce445179ae7.mockapi.io/User/${currentUserId}`);
-        const userData = await response.json();
-
-        // تحديث كائن VIO
-        const updatedData = {
-            ...userData,
-            vio: {
-                ...userData.vio,
-                ...vioData
+        // Initialize Page
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!userId) {
+                alert('الوصول غير مصرح به!');
+                window.location.href = 'login.html';
+                return;
             }
-        };
 
-        // إرسال التحديثات
-        await fetch(`https://673a394a339a4ce445179ae7.mockapi.io/User/${currentUserId}`, {
-            method: 'PUT',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(updatedData)
+            setupFormSwitcher();
+            setupPaymentMethodHandler();
+            setupFormSubmissions();
         });
 
-        showSuccess('تم الحفظ بنجاح!');
-    } catch (error) {
-        handleError('حدث خطأ أثناء الحفظ:', error);
-    }
-}
+        // Form Switcher Logic
+        function setupFormSwitcher() {
+            document.querySelectorAll('[data-form]').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const formId = e.target.dataset.form;
+                    document.querySelectorAll('.form-container').forEach(form => {
+                        form.classList.remove('active');
+                    });
+                    document.getElementById(formId).classList.add('active');
+                });
+            });
+        }
+
+        // Payment Method Dynamic Fields
+        function setupPaymentMethodHandler() {
+            const paymentMethod = document.getElementById('paymentMethod');
+            const toggleFields = () => {
+                const method = paymentMethod.value;
+                document.querySelectorAll('.payment-field').forEach(field => {
+                    field.style.display = 'none';
+                    field.querySelectorAll('input, textarea').forEach(input => {
+                        input.removeAttribute('required');
+                    });
+                });
+
+                if (method === 'Cash') {
+                    document.getElementById('cashFields').style.display = 'block';
+                    document.querySelectorAll('#cashFields input, #cashFields textarea').forEach(input => {
+                        input.setAttribute('required', 'true');
+                    });
+                } else if (method === 'Mastercard' || method === 'ZainCash') {
+                    document.getElementById('cardFields').style.display = 'block';
+                    document.getElementById('accountNumber').setAttribute('required', 'true');
+                }
+            };
+
+            paymentMethod.addEventListener('change', toggleFields);
+            toggleFields(); // Initial call
+        }
+
+        // Form Submissions Handler
+        function setupFormSubmissions() {
+            // Handle Product Form
+            document.getElementById('productForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const formData = {
+                    totlere: document.getElementById('totalOrders').value,
+                    adreesre: document.getElementById('deliveryAddress').value,
+                    requestDate: new Date().toISOString()
+                };
+
+                await updateVioData(formData);
+            });
+
+            // Handle Payment Form
+            document.getElementById('paymentForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const formData = {
+                    pricere: document.getElementById('paymentAmount').value,
+                    byre: document.getElementById('paymentMethod').value,
+                    requestDate: new Date().toISOString()
+                };
+
+                const method = formData.byre;
+                if (method === 'Mastercard' || method === 'ZainCash') {
+                    formData.nure = document.getElementById('accountNumber').value;
+                } else if (method === 'Cash') {
+                    formData.adrees2re = document.getElementById('cashAddress').value;
+                    formData.phonere = document.getElementById('cashPhone').value;
+                }
+
+                await updateVioData(formData);
+            });
+        }
+
+        // API Interaction
+        async function updateVioData(formData) {
+            try {
+                // Get Current Data
+                const response = await fetch(`https://673a394a339a4ce445179ae7.mockapi.io/User/${userId}`);
+                const userData = await response.json();
+
+                // Update VIO Object
+                const updatedData = {
+                    ...userData,
+                    vio: {
+                        ...userData.vio,
+                        ...formData,
+                        lastUpdated: new Date().toISOString()
+                    }
+                };
+
+                // Send Update
+                await fetch(`https://673a394a339a4ce445179ae7.mockapi.io/User/${userId}`, {
+                    method: 'PUT',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(updatedData)
+                });
+
+                alert('تم حفظ الطلب بنجاح! سيتم معالجته خلال 24 ساعة');
+                window.location.href = `dashboard.html?userId=${userId}`;
+            } catch (error) {
+                console.error('Error:', error);
+                alert('حدث خطأ أثناء حفظ البيانات! الرجاء المحاولة لاحقًا');
+            }
+        }
+    </script>
+</body>
+</html>
