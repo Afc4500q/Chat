@@ -3,429 +3,180 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة التحكم الاحترافية</title>
+    <title>لوحة التحكم</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --primary-color: #2A3F5F;
-            --secondary-color: #4A90E2;
-            --accent-color: #FF6B6B;
-            --glass-bg: rgba(255, 255, 255, 0.9);
-            --shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            --primary-color: #1A237E;
+            --secondary-color: #64B5F6;
+            --light-bg: #F4F6F9;
         }
-
         body {
             font-family: 'Tajawal', sans-serif;
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            min-height: 100vh;
+            background: var(--light-bg);
         }
-
-        /* تصميم الزجاجي للهيدر */
-        .glass-header {
-            background: var(--glass-bg);
-            backdrop-filter: blur(10px);
-            box-shadow: var(--shadow);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        /* بطاقات إحصاءات متطورة */
-        .advanced-stat-card {
-            background: var(--glass-bg);
-            border-radius: 20px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .advanced-stat-card::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1));
-            transform: rotate(45deg);
-        }
-
-        .advanced-stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow);
-        }
-
-        /* تصميم المنتجات */
-        .product-card-3d {
-            background: var(--glass-bg);
-            border-radius: 20px;
-            transform-style: preserve-3d;
-            transition: all 0.4s ease;
-            cursor: pointer;
-            position: relative;
-        }
-
-        .product-card-3d:hover {
-            transform: perspective(1000px) rotateX(5deg) rotateY(-5deg);
-        }
-
-        .product-card-3d::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.3);
-            pointer-events: none;
-        }
-
-        /* أزرار متطورة */
-        .neumorphic-btn {
-            background: var(--glass-bg);
-            border: 1px solid rgba(255,255,255,0.3);
-            box-shadow: 5px 5px 10px rgba(0,0,0,0.05),
-                       -5px -5px 10px rgba(255,255,255,0.5);
-            transition: all 0.3s ease;
-        }
-
-        .neumorphic-btn:hover {
-            box-shadow: 2px 2px 5px rgba(0,0,0,0.05),
-                       -2px -2px 5px rgba(255,255,255,0.5);
-            transform: translateY(2px);
-        }
-
-        /* تأثيرات النص */
-        .text-gradient {
-            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        /* شريط التحميل المتحرك */
-        .loading-bar {
-            height: 3px;
-            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
-            width: 0;
-            transition: width 0.4s ease;
+        .sidebar {
+            width: 250px;
+            height: 100vh;
             position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 9999;
+            background: var(--primary-color);
+            color: #fff;
+            padding: 20px;
         }
-
-        @media (max-width: 768px) {
-            .product-card-3d {
-                transform: none !important;
-            }
+        .sidebar a {
+            display: block;
+            padding: 10px;
+            color: #fff;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+        .sidebar a:hover {
+            background: var(--secondary-color);
+            border-radius: 5px;
+        }
+        .main-content {
+            margin-right: 260px;
+            padding: 20px;
+        }
+        .stat-card {
+            border-radius: 10px;
+            padding: 20px;
+            color: #fff;
+            text-align: center;
+        }
+        .bg-success { background: #43A047; }
+        .bg-warning { background: #FB8C00; }
+        .bg-danger { background: #E53935; }
+        .product-card {
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .btn-custom {
+            background: var(--secondary-color);
+            color: #fff;
+        }
+        .btn-custom:hover {
+            background: #42A5F5;
         }
     </style>
 </head>
 <body>
-    <div class="loading-bar"></div>
 
-    <header class="glass-header py-3 sticky-top">
-        <div class="container">
-            <div class="d-flex justify-content-between align-items-center">
-                <h1 class="text-gradient m-0 fw-bold">
-                    <i class="fas fa-chart-line me-2"></i>
-                    لوحة التحكم الذكية
-                </h1>
-                <div class="d-flex gap-3">
-                    <button class="btn btn-success neumorphic-btn" onclick="goToRequestPage()">
-                        <i class="fa-solid fa-plus-circle me-2"></i>
-                        طلب جديد
-                    </button>
-                    <button class="btn btn-danger neumorphic-btn" onclick="logout()">
-                        <i class="fas fa-sign-out-alt me-2"></i>
-                        تسجيل خروج
-                    </button>
+    <!-- الشريط الجانبي -->
+    <div class="sidebar">
+        <h3 class="text-center">لوحة التحكم</h3>
+        <a href="#"><i class="fas fa-home"></i> الصفحة الرئيسية</a>
+        <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> تسجيل الخروج</a>
+        <a href="#" onclick="goToRequestPage()"><i class="fa-solid fa-bell"></i> إجراء طلب</a>
+    </div>
+
+    <!-- المحتوى الرئيسي -->
+    <div class="main-content">
+        <h2 class="text-primary"><i class="fas fa-chart-line"></i> الإحصائيات</h2>
+        <div class="row mb-4" id="stats"></div>
+
+        <h2 class="text-primary"><i class="fas fa-box"></i> المنتجات</h2>
+        <div class="row" id="products-list"></div>
+    </div>
+
+    <!-- نموذج تعديل المنتج -->
+    <div class="modal fade" id="editModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">تعديل المنتج</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-            </div>
-        </div>
-    </header>
-
-    <main class="container py-5">
-        <!-- معلومات المستخدم -->
-        <div class="row g-4 mb-5" id="user-info"></div>
-
-        <!-- الإحصائيات -->
-        <div class="row g-4 mb-5" id="stats"></div>
-
-        <!-- قائمة المنتجات -->
-        <div class="row g-4">
-            <div class="col-12">
-                <h3 class="text-gradient mb-4">
-                    <i class="fas fa-boxes me-2"></i>
-                    إدارة المنتجات
-                </h3>
-                <div class="row g-4" id="products-list"></div>
-            </div>
-        </div>
-    </main>
-
-    <!-- نافذة التعديل -->
-    <div class="modal fade" id="editModal" data-bs-backdrop="static" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content border-0">
-                <div class="modal-header glass-header">
-                    <h5 class="modal-title text-gradient">
-                        <i class="fas fa-edit me-2"></i>
-                        تعديل المنتج
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                <div class="modal-body">
+                    <form id="editForm">
+                        <input type="hidden" id="editProductId">
+                        <div class="mb-3">
+                            <label>اسم المنتج</label>
+                            <input type="text" id="editName" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label>السعر</label>
+                            <input type="number" id="editPrice" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label>الهاتف</label>
+                            <input type="tel" id="editPhone" class="form-control">
+                        </div>
+                    </form>
                 </div>
-                <div class="modal-body bg-light">
-                    <!-- نفس محتوى النموذج السابق -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="button" class="btn btn-primary" onclick="saveChanges()">حفظ التغييرات</button>
                 </div>
             </div>
         </div>
     </div>
 
-
-
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-
-        document.addEventListener('DOMContentLoaded', () => {
-            document.querySelector('.loading-bar').style.width = '100%';
-            setTimeout(() => {
-                document.querySelector('.loading-bar').style.opacity = '0';
-            }, 500);
-        });
-        // التحقق من الجلسة
         const currentUser = JSON.parse(localStorage.getItem("currentUser"));
         if (!currentUser) window.location.href = "login.html";
 
-        let refreshInterval;
-        let productsData = [];
-
-        // تحميل البيانات عند بدء التشغيل
-        document.addEventListener("DOMContentLoaded", () => {
-            loadDashboard();
-            // تحديث تلقائي كل 30 ثانية
-            refreshInterval = setInterval(loadDashboard, 30000);
-        });
+        document.addEventListener("DOMContentLoaded", loadDashboard);
 
         async function loadDashboard() {
             try {
-                const response = await fetch(
-                    `https://673a394a339a4ce445179ae7.mockapi.io/User/${currentUser.id}`
-                );
+                const response = await fetch(`https://673a394a339a4ce445179ae7.mockapi.io/User/${currentUser.id}`);
                 const data = await response.json();
-
-                productsData = data.products || [];
-                updateUserInfo(data);
                 updateStats(data);
-                renderProducts(productsData);
+                renderProducts(data.products || []);
             } catch (error) {
-                handleError("حدث خطأ أثناء تحميل البيانات:", error);
+                alert("حدث خطأ أثناء تحميل البيانات!");
             }
-        }
-
-        function goToRequestPage() {
-            window.location.href = `reaspet.html?userId=${currentUser.id}`;
-        }
-
-        function updateUserInfo(data) {
-            document.getElementById("user-info").innerHTML = `
-                <div class="col-md-4">
-                    <div class="card stat-card border-start border-primary border-4 h-100">
-                        <div class="card-body">
-                            <h5 class="card-subtitle mb-2">
-                                <i class="fas fa-user text-primary"></i> 
-                                الاسم
-                            </h5>
-                            <h2 class="card-title text-primary">${data.name}</h2>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card stat-card border-start border-success border-4 h-100">
-                        <div class="card-body">
-                            <h5 class="card-subtitle mb-2">
-                                <i class="fas fa-at text-success"></i> 
-                                اسم المستخدم
-                            </h5>
-                            <h2 class="card-title text-success">${data.user}</h2>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card stat-card border-start border-danger border-4 h-100">
-                        <div class="card-body">
-                            <h5 class="card-subtitle mb-2">
-                                <i class="fas fa-wallet text-danger"></i> 
-                                الرصيد
-                            </h5>
-                            <h2 class="card-title text-danger">${data.total} IQD</h2>
-                        </div>
-                    </div>
-                </div>`;
         }
 
         function updateStats(data) {
             document.getElementById("stats").innerHTML = `
-                <div class="col-lg-3 col-md-6">
-                    <div class="card stat-card border-start border-primary border-4">
-                        <div class="card-body">
-                            <h5 class="card-subtitle mb-2">الطلبات الكلية</h5>
-                            <h2 class="card-title text-primary">${data.total}</h2>
-                        </div>
+                <div class="col-md-3">
+                    <div class="stat-card bg-success">
+                        <h5>الطلبات الكلية</h5>
+                        <h1>${data.total}</h1>
                     </div>
                 </div>
-                <div class="col-lg-3 col-md-6">
-                    <div class="card stat-card border-start border-success border-4">
-                        <div class="card-body">
-                            <h5 class="card-subtitle mb-2">الطلبات الناجحة</h5>
-                            <h2 class="card-title text-success">${data.successful}</h2>
-                        </div>
+                <div class="col-md-3">
+                    <div class="stat-card bg-warning">
+                        <h5>المعلقة</h5>
+                        <h1>${data.pending}</h1>
                     </div>
                 </div>
-                <div class="col-lg-3 col-md-6">
-                    <div class="card stat-card border-start border-warning border-4">
-                        <div class="card-body">
-                            <h5 class="card-subtitle mb-2">الطلبات المعلقة</h5>
-                            <h2 class="card-title text-warning">${data.pending}</h2>
-                        </div>
+                <div class="col-md-3">
+                    <div class="stat-card bg-danger">
+                        <h5>المرفوضة</h5>
+                        <h1>${data.rejected}</h1>
                     </div>
                 </div>
-                <div class="col-lg-3 col-md-6">
-                    <div class="card stat-card border-start border-danger border-4">
-                        <div class="card-body">
-                            <h5 class="card-subtitle mb-2">الطلبات المرفوضة</h5>
-                            <h2 class="card-title text-danger">${data.rejected}</h2>
-                        </div>
-                    </div>
-                </div>`;
+            `;
         }
 
         function renderProducts(products) {
             const productsList = document.getElementById("products-list");
             productsList.innerHTML = products.map(product => `
-                <div class="col-md-4">
-                    <div class="card product-card h-100">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start mb-3">
-                                <h5 class="card-title mb-0">
-                                    <i class="fas fa-cube text-primary"></i> 
-                                    ${product.name}
-                                </h5>
-                                <span class="badge-custom">${product.price} IQD</span>
-                            </div>
-                            <div class="product-details">
-                                <p class="text-muted mb-1">
-                                    <i class="fas fa-map-marker-alt"></i> 
-                                    ${product.region || "غير محدد"}
-                                </p>
-                                <p class="text-muted mb-1">
-                                    <i class="fas fa-city"></i> 
-                                    ${product.city || "غير محدد"}
-                                </p>
-                                <p class="text-muted">
-                                    <i class="fas fa-phone"></i> 
-                                    ${product.phone || "غير متوفر"}
-                                </p>
-                            </div>
-                            <div class="d-flex gap-2 mt-3">
-                                <button class="btn btn-outline-danger btn-sm" onclick="deleteProduct('${product.id}')">
-                                    <i class="fas fa-trash"></i> حذف
-                                </button>
-                                <button class="btn btn-primary btn-sm" onclick="openeditModal('${product.id}')">
-                                    <i class="fas fa-edit"></i> تعديل
-                                </button>
-                            </div>
-                        </div>
+                <div class="col-md-4 mb-3">
+                    <div class="card product-card p-3">
+                        <h5>${product.name}</h5>
+                        <p>السعر: ${product.price} IQD</p>
+                        <p>الهاتف: ${product.phone || "غير متوفر"}</p>
+                        <button class="btn btn-danger btn-sm" onclick="deleteProduct('${product.id}')">حذف</button>
+                        <button class="btn btn-custom btn-sm" onclick="openEditModal('${product.id}')">تعديل</button>
                     </div>
-                </div>`
-            ).join("");
-        }
-
-        async function deleteProduct(productId) {
-            if (!confirm("هل أنت متأكد من حذف هذا المنتج؟")) return;
-
-            try {
-                const userRes = await fetch(`https://673a394a339a4ce445179ae7.mockapi.io/User/${currentUser.id}`);
-                const userData = await userRes.json();
-                
-                const updatedProducts = userData.products.filter(p => p.id !== productId);
-                
-                await fetch(`https://673a394a339a4ce445179ae7.mockapi.io/User/${currentUser.id}`, {
-                    method: "PUT",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ products: updatedProducts })
-                });
-
-                showSuccess("تم الحذف بنجاح!");
-                await loadDashboard();
-            } catch (error) {
-                handleError("حدث خطأ أثناء الحذف:", error);
-            }
-        }
-
-        function openEditModal(productId) {
-            const product = productsData.find(p => p.id === productId);
-            if (!product) return alert('المنتج غير موجود');
-
-            document.getElementById("editProductId").value = product.id;
-            document.getElementById("editName").value = product.name;
-            document.getElementById("editPrice").value = product.price;
-            document.getElementById("editRegion").value = product.region || "";
-            document.getElementById("editCity").value = product.city || "";
-            document.getElementById("editState").value = product.state || "";
-            document.getElementById("editPhone").value = product.phone || "";
-
-            new bootstrap.Modal(document.getElementById("editModal")).show();
-        }
-
-        async function saveChanges() {
-            const productId = document.getElementById("editProductId").value;
-            const updatedData = {
-                name: document.getElementById("editName").value,
-                price: Number(document.getElementById("editPrice").value),
-                region: document.getElementById("editRegion").value,
-                city: document.getElementById("editCity").value,
-                state: document.getElementById("editState").value,
-                phone: document.getElementById("editPhone").value,
-            };
-
-            try {
-                const userRes = await fetch(`https://673a394a339a4ce445179ae7.mockapi.io/User/${currentUser.id}`);
-                const userData = await userRes.json();
-                
-                const updatedProducts = userData.products.map(p => 
-                    p.id === productId ? { ...p, ...updatedData } : p
-                );
-                
-                await fetch(`https://673a394a339a4ce445179ae7.mockapi.io/User/${currentUser.id}`, {
-                    method: "PUT",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ products: updatedProducts })
-                });
-
-                showSuccess("تم التحديث بنجاح!");
-                const modalElement = document.getElementById("editModal");
-                const modalInstance = bootstrap.Modal.getInstance(modalElement);
-                if (modalInstance) modalInstance.hide();
-                await loadDashboard();
-            } catch (error) {
-                handleError("حدث خطأ أثناء التحديث:", error);
-            }
-        }
-
-        function showSuccess(message) {
-            alert(message);
-        }
-
-        function handleError(logMessage, error) {
-            console.error(logMessage, error);
-            alert("فشل في العملية! الرجاء المحاولة لاحقًا");
+                </div>
+            `).join("");
         }
 
         function logout() {
-            clearInterval(refreshInterval);
             localStorage.removeItem("currentUser");
             window.location.href = "index.html";
+        }
+
+        function goToRequestPage() {
+            window.location.href = `reaspet.html?userId=${currentUser.id}`;
         }
     </script>
 </body>
