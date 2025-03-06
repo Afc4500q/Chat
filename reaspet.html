@@ -27,13 +27,42 @@
         .form-container.active {
             display: block;
         }
-        .payment-field {
+        .request-card {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            position: relative;
             transition: all 0.3s ease;
+            background: white;
+        }
+        .request-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .status-indicator {
+            position: absolute;
+            left: 15px;
+            top: 15px;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: #28a745;
+        }
+        .request-actions {
+            margin-top: 1rem;
+            border-top: 1px solid #eee;
+            padding-top: 1rem;
+            display: flex;
+            gap: 0.5rem;
         }
         .required::after {
             content: " *";
             color: red;
             font-size: 0.8em;
+        }
+        .payment-field {
+            transition: all 0.3s ease;
         }
     </style>
 </head>
@@ -41,8 +70,8 @@
     <div class="container py-5">
         <!-- Header -->
         <div class="text-center mb-5">
-            <h1 class="text-primary"><i class="fa-solid fa-file-invoice"></i> نموذج تقديم الطلبات</h1>
-            <p class="text-muted">املأ البيانات المطلوبة حسب نوع الطلب</p>
+            <h1 class="text-primary"><i class="fa-solid fa-file-invoice"></i> تقديم طلب جديد</h1>
+            <p class="text-muted">اختر نوع الطلب واملأ البيانات المطلوبة</p>
         </div>
 
         <!-- Type Selector -->
@@ -123,6 +152,21 @@
             </form>
         </div>
 
+        <!-- عرض الطلبات -->
+        <div class="mt-5">
+            <!-- طلبات المنتجات -->
+            <div id="product-requests" class="mb-5">
+                <h4 class="mb-3"><i class="fa-solid fa-boxes-packing"></i> طلبات المنتجات الحالية</h4>
+                <div id="productRequestsList"></div>
+            </div>
+
+            <!-- طلبات الدفع -->
+            <div id="payment-requests">
+                <h4 class="mb-3"><i class="fa-solid fa-money-bill-transfer"></i> طلبات الدفع الحالية</h4>
+                <div id="paymentRequestsList"></div>
+            </div>
+        </div>
+
         <!-- Back Button -->
         <div class="text-center mt-5">
             <a href="dashboard.html" class="btn btn-secondary">
@@ -133,12 +177,12 @@
 
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
-        // Get User ID from URL
+        // الحصول على معرف المستخدم من الرابط
         const urlParams = new URLSearchParams(window.location.search);
         const userId = urlParams.get('userId');
         
-        // Initialize Page
-        document.addEventListener('DOMContentLoaded', () => {
+        // تهيئة الصفحة
+        document.addEventListener('DOMContentLoaded', async () => {
             if (!userId) {
                 alert('الوصول غير مصرح به!');
                 window.location.href = 'login.html';
@@ -148,9 +192,10 @@
             setupFormSwitcher();
             setupPaymentMethodHandler();
             setupFormSubmissions();
+            await displayRequests();
         });
 
-        // Form Switcher Logic
+        // تبديل النماذج
         function setupFormSwitcher() {
             document.querySelectorAll('[data-form]').forEach(button => {
                 button.addEventListener('click', (e) => {
@@ -163,7 +208,7 @@
             });
         }
 
-        // Payment Method Dynamic Fields
+        // إدارة حقول الدفع الديناميكية
         function setupPaymentMethodHandler() {
             const paymentMethod = document.getElementById('paymentMethod');
             const toggleFields = () => {
@@ -187,32 +232,26 @@
             };
 
             paymentMethod.addEventListener('change', toggleFields);
-            toggleFields(); // Initial call
+            toggleFields();
         }
 
-        // Form Submissions Handler
+        // معالجة إرسال النماذج
         function setupFormSubmissions() {
-            // Handle Product Form
+            // نموذج المنتجات
             document.getElementById('productForm').addEventListener('submit', async (e) => {
                 e.preventDefault();
-                
-                const formData = {
+                await handleFormSubmission({
                     totlere: document.getElementById('totalOrders').value,
-                    adreesre: document.getElementById('deliveryAddress').value,
-                    requestDate: new Date().toISOString()
-                };
-
-                await updateVioData(formData);
+                    adreesre: document.getElementById('deliveryAddress').value
+                });
             });
 
-            // Handle Payment Form
+            // نموذج الدفع
             document.getElementById('paymentForm').addEventListener('submit', async (e) => {
                 e.preventDefault();
-                
                 const formData = {
                     pricere: document.getElementById('paymentAmount').value,
-                    byre: document.getElementById('paymentMethod').value,
-                    requestDate: new Date().toISOString()
+                    byre: document.getElementById('paymentMethod').value
                 };
 
                 const method = formData.byre;
@@ -223,18 +262,16 @@
                     formData.phonere = document.getElementById('cashPhone').value;
                 }
 
-                await updateVioData(formData);
+                await handleFormSubmission(formData);
             });
         }
 
-        // API Interaction
-        async function updateVioData(formData) {
+        // حفظ البيانات في API
+        async function handleFormSubmission(formData) {
             try {
-                // Get Current Data
                 const response = await fetch(`https://673a394a339a4ce445179ae7.mockapi.io/User/${userId}`);
                 const userData = await response.json();
 
-                // Update VIO Object
                 const updatedData = {
                     ...userData,
                     vio: {
@@ -244,19 +281,145 @@
                     }
                 };
 
-                // Send Update
                 await fetch(`https://673a394a339a4ce445179ae7.mockapi.io/User/${userId}`, {
                     method: 'PUT',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(updatedData)
                 });
 
-                alert('تم حفظ الطلب بنجاح! سيتم معالجته خلال 24 ساعة');
-                window.location.href = `dashboard.html?userId=${userId}`;
+                alert('تم حفظ الطلب بنجاح!');
+                await displayRequests();
             } catch (error) {
                 console.error('Error:', error);
-                alert('حدث خطأ أثناء حفظ البيانات! الرجاء المحاولة لاحقًا');
+                alert('حدث خطأ أثناء الحفظ!');
             }
+        }
+
+        // عرض الطلبات الحالية
+        async function displayRequests() {
+            try {
+                const response = await fetch(`https://673a394a339a4ce445179ae7.mockapi.io/User/${userId}`);
+                const userData = await response.json();
+                const vio = userData.vio || {};
+
+                // عرض طلبات المنتجات
+                let productRequestsHTML = '';
+                if (vio.totlere && vio.totlere !== "0" && vio.adreesre) {
+                    productRequestsHTML = `
+                        <div class="request-card">
+                            <div class="status-indicator"></div>
+                            <h5>طلب منتجات</h5>
+                            <p><strong>الكمية:</strong> ${vio.totlere}</p>
+                            <p><strong>العنوان:</strong> ${vio.adreesre}</p>
+                            <div class="request-actions">
+                                <button class="btn btn-sm btn-outline-primary" onclick="editProductRequest()">
+                                    <i class="fa-solid fa-pen-to-square"></i> تعديل
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="deleteRequest('product')">
+                                    <i class="fa-solid fa-trash"></i> حذف
+                                </button>
+                            </div>
+                        </div>`;
+                }
+                document.getElementById('productRequestsList').innerHTML = productRequestsHTML;
+
+                // عرض طلبات الدفع
+                let paymentRequestsHTML = '';
+                if (vio.pricere && vio.pricere !== "0" && vio.byre) {
+                    const paymentDetails = getPaymentDetails(vio);
+                    paymentRequestsHTML = `
+                        <div class="request-card">
+                            <div class="status-indicator"></div>
+                            <h5>طلب دفع</h5>
+                            <p><strong>المبلغ:</strong> ${vio.pricere} IQD</p>
+                            ${paymentDetails}
+                            <div class="request-actions">
+                                <button class="btn btn-sm btn-outline-primary" onclick="editPaymentRequest()">
+                                    <i class="fa-solid fa-pen-to-square"></i> تعديل
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="deleteRequest('payment')">
+                                    <i class="fa-solid fa-trash"></i> حذف
+                                </button>
+                            </div>
+                        </div>`;
+                }
+                document.getElementById('paymentRequestsList').innerHTML = paymentRequestsHTML;
+            } catch (error) {
+                console.error('Error loading requests:', error);
+            }
+        }
+
+        function getPaymentDetails(vio) {
+            if (vio.byre === 'Cash') {
+                return `
+                    <p><strong>طريقة الدفع:</strong> نقدي</p>
+                    <p><strong>عنوان الاستلام:</strong> ${vio.adrees2re || ''}</p>
+                    <p><strong>رقم الهاتف:</strong> ${vio.phonere || ''}</p>`;
+            }
+            return `
+                <p><strong>طريقة الدفع:</strong> ${vio.byre}</p>
+                <p><strong>رقم الحساب:</strong> ${vio.nure || ''}</p>`;
+        }
+
+        async function deleteRequest(type) {
+            if (!confirm(`هل أنت متأكد من حذف طلب ${type === 'product' ? 'المنتج' : 'الدفع'}؟`)) return;
+
+            try {
+                const response = await fetch(`https://673a394a339a4ce445179ae7.mockapi.io/User/${userId}`);
+                const userData = await response.json();
+                
+                const updatedVio = {...userData.vio};
+                if (type === 'product') {
+                    delete updatedVio.totlere;
+                    delete updatedVio.adreesre;
+                } else {
+                    delete updatedVio.pricere;
+                    delete updatedVio.byre;
+                    delete updatedVio.nure;
+                    delete updatedVio.adrees2re;
+                    delete updatedVio.phonere;
+                }
+
+                await fetch(`https://673a394a339a4ce445179ae7.mockapi.io/User/${userId}`, {
+                    method: 'PUT',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({...userData, vio: updatedVio})
+                });
+
+                await displayRequests();
+                alert('تم الحذف بنجاح!');
+            } catch (error) {
+                console.error('Error deleting request:', error);
+                alert('حدث خطأ أثناء الحذف!');
+            }
+        }
+
+        async function editProductRequest() {
+            const userRes = await fetch(`https://673a394a339a4ce445179ae7.mockapi.io/User/${userId}`);
+            const userData = await userRes.json();
+            const vio = userData.vio || {};
+
+            document.getElementById('totalOrders').value = vio.totlere;
+            document.getElementById('deliveryAddress').value = vio.adreesre;
+            document.getElementById('product-form').classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        async function editPaymentRequest() {
+            const userRes = await fetch(`https://673a394a339a4ce445179ae7.mockapi.io/User/${userId}`);
+            const userData = await userRes.json();
+            const vio = userData.vio || {};
+
+            document.getElementById('paymentAmount').value = vio.pricere;
+            document.getElementById('paymentMethod').value = vio.byre;
+            if (vio.byre === 'Cash') {
+                document.getElementById('cashAddress').value = vio.adrees2re || '';
+                document.getElementById('cashPhone').value = vio.phonere || '';
+            } else {
+                document.getElementById('accountNumber').value = vio.nure || '';
+            }
+            document.getElementById('payment-form').classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     </script>
 </body>
