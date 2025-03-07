@@ -93,6 +93,16 @@
             border-radius: 16px;
             padding: 1rem 2rem;
         }
+
+        .status-قيد المراجعة { color: #9E9E9E; }
+.status-قيد الشحن { color: #2196F3; }
+.status-تم الشحن { color: #4CAF50; }
+.status-مرفوض { color: #F44336; }
+
+.fa-circle {
+    font-size: 0.6rem;
+    vertical-align: middle;
+}
     </style>
 </head>
 <body class="py-4">
@@ -121,7 +131,65 @@
         <div class="row g-4 mb-4" id="user-info"></div>
 
         <!-- الإحصائيات -->
-        <div class="row g-4 mb-4" id="stats"></div>
+       <!-- الإحصائيات -->
+<div class="row g-4 mb-4" id="stats">
+    <div class="row g-4 mb-2">
+        <div class="col-md-6">
+            <div class="glass-card p-4">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="stat-icon" style="background: linear-gradient(45deg, #9C27B0, #E91E63)">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted mb-1">الطلبات الكلية</h6>
+                        <h2 class="gradient-text mb-0">${data.total}</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="glass-card p-4">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="stat-icon" style="background: linear-gradient(45deg, #4CAF50, #8BC34A)">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted mb-1">الطلبات الناجحة</h6>
+                        <h2 class="text-success mb-0">${data.successful}</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="glass-card p-4">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="stat-icon" style="background: linear-gradient(45deg, #FF9800, #FFC107)">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted mb-1">الطلبات المعلقة</h6>
+                        <h2 class="text-warning mb-0">${data.pending}</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="glass-card p-4">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="stat-icon" style="background: linear-gradient(45deg, #F44336, #E91E63)">
+                        <i class="fas fa-times-circle"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted mb-1">الطلبات المرفوضة</h6>
+                        <h2 class="text-danger mb-0">${data.rejected}</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
         <!-- المنتجات -->
         <div class="row g-4" id="products-list"></div>
@@ -285,35 +353,35 @@
         }
 
         function renderProducts(products) {
-            document.getElementById("products-list").innerHTML = products.map(product => `
-                <div class="col-md-4">
-                    <div class="glass-card p-4 h-100 position-relative">
-                        <div class="d-flex justify-content-between align-items-start mb-3">
-                            <h5 class="mb-0">${product.name}</h5>
-                            <span class="badge bg-primary rounded-pill">${product.id} IQD</span>
-                        </div>
-                        <div class="text-muted small">
-                            <p class="mb-1"><i class="fas fa-map-marker-alt me-2"></i>${product.price || 'غير محدد'}</p>
-                            <p class="mb-1"><i class="fas fa-city me-2"></i>${product.city || 'غير محدد'}</p>
-                            <p class="mb-1"><i class="fas fa-phone me-2"></i>${product.status || 'غير محدد'}</p>
-                            <p class="mb-1"><i class="fas fa-phone me-2"></i>${product.state || 'غير محدد'}</p>
-                            <p class="mb-1"><i class="fas fa-phone me-2"></i>${product.city || 'غير محدد'}</p>
-                            <p class="mb-1"><i class="fas fa-phone me-2"></i>${product.area || 'غير محدد'}</p>
-                            <p class="mb-1"><i class="fas fa-phone me-2"></i>${product.phone || 'غير محدد'}</p>
-                            <p class="mb-1"><i class="fas fa-phone me-2"></i>${product.type || 'غير محدد'}</p>
-                        </div>
-                        <div class="d-flex gap-2 mt-3">
-                            <button class="btn btn-sm neumorphic-btn text-danger" onclick="deleteProduct('${product.id}')">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                            <button class="btn btn-sm neumorphic-btn text-primary" onclick="openEditModal('${product.id}')">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>`
-            ).join("");
-        }
+    document.getElementById("products-list").innerHTML = products.map(product => `
+        <div class="col-md-4">
+            <div class="glass-card p-4 h-100 position-relative">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <h5 class="mb-0">${product.name}</h5>
+                    <span class="badge bg-primary rounded-pill">${product.price} IQD</span>
+                </div>
+                <div class="text-muted small">
+                    <p class="mb-1"><i class="fas fa-map-marker-alt me-2"></i>${product.region || 'غير محدد'}</p>
+                    <p class="mb-1"><i class="fas fa-city me-2"></i>${product.city || 'غير محدد'}</p>
+                    <p class="mb-1"><i class="fas fa-phone me-2"></i>${product.phone || 'غير محدد'}</p>
+                    <p class="mb-1"><i class="fas fa-tag me-2"></i>${product.type || 'غير محدد'}</p>
+                    <p class="mb-1 status-${product.status}">
+                        <i class="fas fa-circle me-2"></i>
+                        ${product.status || 'غير محدد'}
+                    </p>
+                </div>
+                <div class="d-flex gap-2 mt-3">
+                    <button class="btn btn-sm neumorphic-btn text-danger" onclick="deleteProduct('${product.id}')">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                    <button class="btn btn-sm neumorphic-btn text-primary" onclick="openEditModal('${product.id}')">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                </div>
+            </div>
+        </div>`
+    ).join("");
+}
 
         // باقي دوال الجافاسكريبت كما هي بدون تغيير
         async function deleteProduct(productId) {
