@@ -96,8 +96,8 @@
 
         .status-قيد المراجعة { color: #9E9E9E; }
 .status-قيد الشحن { color: #2196F3; }
-.status-تم الشحن { color: #4CAF50; }
-.status-مرفوض { color: #F44336; }
+.status-تم التسليم { color: #4CAF50; }
+.status-تم الرفض { color: #F44336; }
 
 .fa-circle {
     font-size: 0.6rem;
@@ -357,14 +357,15 @@
         <div class="col-md-4">
             <div class="glass-card p-4 h-100 position-relative">
                 <div class="d-flex justify-content-between align-items-start mb-3">
-                    <h5 class="mb-0">${product.name}</h5>
+                    <h5 class="mb-0">${product.id}</h5>
                     <span class="badge bg-primary rounded-pill">${product.price} IQD</span>
                 </div>
                 <div class="text-muted small">
-                    <p class="mb-1"><i class="fas fa-map-marker-alt me-2"></i>${product.region || 'غير محدد'}</p>
+                    <p class="mb-1"><i class="fa-solid fa-signature"></i>${product.name || 'غير محدد'}</p>
+                    <p class="mb-1"><i class="fa-solid fa-house"></i>>${product.state || 'غير محدد'}</p>
                     <p class="mb-1"><i class="fas fa-city me-2"></i>${product.city || 'غير محدد'}</p>
+                    <p class="mb-1"><i class="fa-solid fa-house-user"></i></i>${product.area || 'غير محدد'}</p>
                     <p class="mb-1"><i class="fas fa-phone me-2"></i>${product.phone || 'غير محدد'}</p>
-                    <p class="mb-1"><i class="fas fa-tag me-2"></i>${product.type || 'غير محدد'}</p>
                     <p class="mb-1 status-${product.status}">
                         <i class="fas fa-circle me-2"></i>
                         ${product.status || 'غير محدد'}
