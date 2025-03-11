@@ -1,10 +1,16 @@
 {
   "name": "Al-Bawariq",
-  "theme_color": "#000000",
-  "background_color": "#000000",
   "short_name": "baq",
-  "id": "https://afc4500q.github.io/Chat/",
+  "start_url": "/Chat/",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone"],
+  "background_color": "#000000",
+  "theme_color": "#000000",
   "description": "تطبيق إدارة منتجاتك من شركة البوارق للتوصيل السريع",
+  "orientation": "portrait",
+  "scope": "/Chat/",
+  "dir": "rtl",
+  "lang": "ar",
   "icons": [
     {
       "src": "/Chat/0A8477A7-6DFA-42E6-92CD-B6BA564C37A4.webp",
