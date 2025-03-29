@@ -138,6 +138,7 @@
             color: white;
             font-weight: bold;
             animation: slideIn 0.5s ease-out;
+            z-index: 1000;
         }
 
         @keyframes slideIn {
@@ -264,7 +265,7 @@
                     </div>
                 `;
 
-                if (!card.isMatched && !isProcessing) {
+                if (!card.isMatched && !isProcessing && playerNumber === currentGameState.currentPlayer) {
                     cardElement.onclick = () => handleCardClick(index);
                 }
                 
@@ -283,43 +284,36 @@
             if (card.isMatched || card.isFlipped) return;
 
             isProcessing = true;
-            const updatedGame = {...currentGameState};
+            const updatedGame = JSON.parse(JSON.stringify(currentGameState));
             
-            // تحديث الحالة المحلية فوراً
             updatedGame.cards[index].isFlipped = true;
             updatedGame.flippedIndices.push(index);
+            
             currentGameState = updatedGame;
             renderGame();
 
             if (updatedGame.flippedIndices.length === 2) {
-                setTimeout(async () => {
-                    const [firstIdx, secondIdx] = updatedGame.flippedIndices;
-                    const card1 = updatedGame.cards[firstIdx];
-                    const card2 = updatedGame.cards[secondIdx];
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                const [firstIdx, secondIdx] = updatedGame.flippedIndices;
+                const card1 = updatedGame.cards[firstIdx];
+                const card2 = updatedGame.cards[secondIdx];
 
-                    if (card1.value === card2.value) {
-                        updatedGame.cards[firstIdx].isMatched = true;
-                        updatedGame.cards[secondIdx].isMatched = true;
-                        updatedGame[`player${playerNumber}Score`] += 1;
-                        showNotification('🎉 تطابق ناجح!');
-                    } else {
-                        updatedGame.currentPlayer = playerNumber === 1 ? 2 : 1;
-                        updatedGame.cards[firstIdx].isFlipped = false;
-                        updatedGame.cards[secondIdx].isFlipped = false;
-                        showNotification('🔄 تغيير الدور');
-                    }
+                if (card1.value === card2.value) {
+                    updatedGame.cards[firstIdx].isMatched = true;
+                    updatedGame.cards[secondIdx].isMatched = true;
+                    updatedGame[`player${playerNumber}Score`] += 1;
+                    showNotification('🎉 تطابق ناجح!');
+                } else {
+                    updatedGame.currentPlayer = playerNumber === 1 ? 2 : 1;
+                    updatedGame.cards[firstIdx].isFlipped = false;
+                    updatedGame.cards[secondIdx].isFlipped = false;
+                    showNotification('🔄 تغيير الدور');
+                }
 
-                    updatedGame.flippedIndices = [];
-                    await updateGameState(updatedGame);
-                    isProcessing = false;
-                }, 1000);
-            } else {
-                await updateGameState(updatedGame);
-                isProcessing = false;
+                updatedGame.flippedIndices = [];
             }
-        }
 
-        async function updateGameState(updatedGame) {
             try {
                 const response = await fetch(`https://673a394a339a4ce445179ae7.mockapi.io/Post/${gameId}`, {
                     method: 'PUT',
@@ -327,11 +321,13 @@
                     body: JSON.stringify(updatedGame)
                 });
                 currentGameState = await response.json();
-                renderGame();
             } catch (error) {
                 console.error('خطأ في التحديث:', error);
                 showNotification('❌ فشل في حفظ الحالة');
             }
+            
+            isProcessing = false;
+            renderGame();
         }
 
         function showNotification(message) {
