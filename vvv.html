@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>لعبة أوراق الذاكرة - لاعبين</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        #gameContainer {
+            display: none;
+        }
+
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .card {
+            width: 100px;
+            height: 150px;
+            perspective: 1000px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .card-inner {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+
+        .card.flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 10px;
+            font-size: 32px;
+            user-select: none;
+        }
+
+        .card-front {
+            background-color: #ffffff;
+            transform: rotateY(180deg);
+            border: 2px solid #2196F3;
+        }
+
+        .card-back {
+            background-color: #2196F3;
+            color: white;
+            transform: rotateY(0deg);
+        }
+
+        .card.matched .card-front {
+            background-color: #4CAF50 !important;
+            border-color: #388E3C;
+        }
+
+        .players-info {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            max-width: 600px;
+            margin: 20px 0;
+            padding: 15px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        #setupScreen {
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        button {
+            padding: 12px 24px;
+            margin: 10px;
+            cursor: pointer;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            transition: all 0.3s;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #1976D2;
+            transform: translateY(-2px);
+        }
+
+        input {
+            padding: 12px;
+            margin: 10px;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            width: 250px;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        #gameId {
+            font-weight: bold;
+            color: #2196F3;
+            margin: 15px 0;
+            font-size: 20px;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            padding: 15px 30px;
+            border-radius: 30px;
+            background-color: #4CAF50;
+            color: white;
+            font-weight: bold;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-100px); }
+            to { transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div id="setupScreen">
+        <h1>🎮 لعبة الذاكرة الجماعية 🧠</h1>
+        <button onclick="createGame()">✨ إنشاء لعبة جديدة</button>
+        <div>
+            <input type="text" id="gameIdInput" placeholder="🔑 أدخل معرف اللعبة">
+            <button onclick="joinGame()">🎯 انضم للعبة</button>
+        </div>
+    </div>
+
+    <div id="gameContainer">
+        <div class="players-info">
+            <div>👤 اللاعب 1: <span id="player1Score">0</span></div>
+            <div>👤 اللاعب 2: <span id="player2Score">0</span></div>
+            <div>🕹️ الدور: <span id="currentPlayer">1</span></div>
+        </div>
+        <div id="gameId">🎮 معرف اللعبة: <span>...</span></div>
+        <div class="game-board" id="gameBoard"></div>
+    </div>
+
+    <script>
+        let gameId = null;
+        let playerNumber = null;
+        let currentGameState = null;
+        let isProcessing = false;
+
+        async function createGame() {
+            try {
+                const response = await fetch('https://673a394a339a4ce445179ae7.mockapi.io/Post', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        player1Score: 0,
+                        player2Score: 0,
+                        currentPlayer: 1,
+                        cards: generateShuffledCards(),
+                        flippedIndices: []
+                    })
+                });
+                
+                const game = await response.json();
+                gameId = game.id;
+                playerNumber = 1;
+                showGameInterface();
+                startGameLoop();
+                showNotification('🎉 تم إنشاء اللعبة بنجاح!');
+            } catch (error) {
+                showNotification('❌ حدث خطأ أثناء إنشاء اللعبة');
+            }
+        }
+
+        function generateShuffledCards() {
+            const symbols = ['🌸', '🍎', '⚽', '🚗', '📘', '🎁', '🏠', '❤️'];
+            const values = [...symbols, ...symbols].sort(() => Math.random() - 0.5);
+            return values.map((value, index) => ({
+                id: index,
+                value,
+                isFlipped: false,
+                isMatched: false
+            }));
+        }
+
+        async function joinGame() {
+            gameId = document.getElementById('gameIdInput').value.trim();
+            if (!gameId) return;
+
+            try {
+                const response = await fetch(`https://673a394a339a4ce445179ae7.mockapi.io/Post/${gameId}`);
+                if (!response.ok) throw new Error();
+                
+                const game = await response.json();
+                currentGameState = game;
+                playerNumber = 2;
+                showGameInterface();
+                startGameLoop();
+                showNotification('🎮 تم الانضمام للعبة بنجاح!');
+            } catch {
+                showNotification('❌ لم يتم العثور على اللعبة');
+            }
+        }
+
+        function showGameInterface() {
+            document.getElementById('setupScreen').style.display = 'none';
+            document.getElementById('gameContainer').style.display = 'block';
+            document.querySelector('#gameId span').textContent = gameId;
+        }
+
+        function startGameLoop() {
+            setInterval(async () => {
+                try {
+                    const response = await fetch(`https://673a394a339a4ce445179ae7.mockapi.io/Post/${gameId}`);
+                    const game = await response.json();
+                    
+                    if (JSON.stringify(game) !== JSON.stringify(currentGameState)) {
+                        currentGameState = game;
+                        renderGame();
+                    }
+                } catch (error) {
+                    console.error('خطأ في المزامنة:', error);
+                }
+            }, 1000);
+        }
+
+        function renderGame() {
+            const gameBoard = document.getElementById('gameBoard');
+            gameBoard.innerHTML = '';
+            
+            currentGameState.cards.forEach((card, index) => {
+                const cardElement = document.createElement('div');
+                cardElement.className = `card${card.isFlipped ? ' flipped' : ''}${card.isMatched ? ' matched' : ''}`;
+                
+                cardElement.innerHTML = `
+                    <div class="card-inner">
+                        <div class="card-front">${card.value}</div>
+                        <div class="card-back"></div>
+                    </div>
+                `;
+
+                if (!card.isMatched && !isProcessing) {
+                    cardElement.onclick = () => handleCardClick(index);
+                }
+                
+                gameBoard.appendChild(cardElement);
+            });
+
+            document.getElementById('player1Score').textContent = currentGameState.player1Score;
+            document.getElementById('player2Score').textContent = currentGameState.player2Score;
+            document.getElementById('currentPlayer').textContent = currentGameState.currentPlayer;
+        }
+
+        async function handleCardClick(index) {
+            if (isProcessing || playerNumber !== currentGameState.currentPlayer) return;
+            
+            const card = currentGameState.cards[index];
+            if (card.isMatched || card.isFlipped) return;
+
+            isProcessing = true;
+            const updatedGame = {...currentGameState};
+            
+            // تحديث الحالة المحلية فوراً
+            updatedGame.cards[index].isFlipped = true;
+            updatedGame.flippedIndices.push(index);
+            currentGameState = updatedGame;
+            renderGame();
+
+            if (updatedGame.flippedIndices.length === 2) {
+                setTimeout(async () => {
+                    const [firstIdx, secondIdx] = updatedGame.flippedIndices;
+                    const card1 = updatedGame.cards[firstIdx];
+                    const card2 = updatedGame.cards[secondIdx];
+
+                    if (card1.value === card2.value) {
+                        updatedGame.cards[firstIdx].isMatched = true;
+                        updatedGame.cards[secondIdx].isMatched = true;
+                        updatedGame[`player${playerNumber}Score`] += 1;
+                        showNotification('🎉 تطابق ناجح!');
+                    } else {
+                        updatedGame.currentPlayer = playerNumber === 1 ? 2 : 1;
+                        updatedGame.cards[firstIdx].isFlipped = false;
+                        updatedGame.cards[secondIdx].isFlipped = false;
+                        showNotification('🔄 تغيير الدور');
+                    }
+
+                    updatedGame.flippedIndices = [];
+                    await updateGameState(updatedGame);
+                    isProcessing = false;
+                }, 1000);
+            } else {
+                await updateGameState(updatedGame);
+                isProcessing = false;
+            }
+        }
+
+        async function updateGameState(updatedGame) {
+            try {
+                const response = await fetch(`https://673a394a339a4ce445179ae7.mockapi.io/Post/${gameId}`, {
+                    method: 'PUT',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(updatedGame)
+                });
+                currentGameState = await response.json();
+                renderGame();
+            } catch (error) {
+                console.error('خطأ في التحديث:', error);
+                showNotification('❌ فشل في حفظ الحالة');
+            }
+        }
+
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
